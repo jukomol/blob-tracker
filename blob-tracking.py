@@ -4,9 +4,6 @@ import numpy as np
 # Font to write text overlay
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-# Read test image
-frame = cv2.imread("ball2.jpeg")
-
 # Create window for trackbars
 cv2.namedWindow("Trackbars")
 
@@ -15,10 +12,10 @@ def nothing(x):
     pass
 
 # Create trackbars for HSV thresholds
-cv2.createTrackbar("H Min", "Trackbars", 20, 179, nothing)
-cv2.createTrackbar("S Min", "Trackbars", 120, 255, nothing)
-cv2.createTrackbar("V Min", "Trackbars", 120, 255, nothing)
-cv2.createTrackbar("H Max", "Trackbars", 49, 179, nothing)
+cv2.createTrackbar("H Min", "Trackbars", 35, 179, nothing)
+cv2.createTrackbar("S Min", "Trackbars", 100, 255, nothing)
+cv2.createTrackbar("V Min", "Trackbars", 100, 255, nothing)
+cv2.createTrackbar("H Max", "Trackbars", 85, 179, nothing)
 cv2.createTrackbar("S Max", "Trackbars", 255, 255, nothing)
 cv2.createTrackbar("V Max", "Trackbars", 255, 255, nothing)
 
@@ -26,7 +23,15 @@ cv2.createTrackbar("V Max", "Trackbars", 255, 255, nothing)
 cv2.createTrackbar("Min Area", "Trackbars", 400, 5000, nothing)
 cv2.createTrackbar("Max Area", "Trackbars", 20000, 50000, nothing)
 
+# Initialize camera
+cap = cv2.VideoCapture(2)
+
 while True:
+    # Capture frame from camera
+    ret, frame = cap.read()
+    if not ret:
+        break
+    
     # Get current positions of trackbars
     h_min = cv2.getTrackbarPos("H Min", "Trackbars")
     s_min = cv2.getTrackbarPos("S Min", "Trackbars")
@@ -110,4 +115,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == 27:  # Press 'Esc' to exit
         break
 
+# Release camera and close windows
+cap.release()
 cv2.destroyAllWindows()
