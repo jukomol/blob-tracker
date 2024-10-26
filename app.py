@@ -5,7 +5,7 @@ import numpy as np
 app = Flask(__name__)
 
 # Initialize the video capture with the USB camera
-camera = cv2.VideoCapture(0)  # Change to 0 for the default camera
+camera = cv2.VideoCapture(1)  # Change to 0 for the default camera
 
 # Default values for HSV and blob parameters
 hsv_params = {
@@ -102,4 +102,4 @@ def set_params():
     return ('', 204)  # Empty response
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

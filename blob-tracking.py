@@ -24,7 +24,7 @@ cv2.createTrackbar("Min Area", "Trackbars", 400, 5000, nothing)
 cv2.createTrackbar("Max Area", "Trackbars", 20000, 50000, nothing)
 
 # Initialize camera
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(1)
 
 while True:
     # Capture frame from camera
