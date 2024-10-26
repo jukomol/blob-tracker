@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARCTIC ASV TRACKER</title>
+    <title>Real-time Blob Tracking with Masking and Controls</title>
     <style>
         .slider-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
+            margin-top: 20px;
         }
         .slider {
             width: 300px;
+            margin-bottom: 15px;
         }
     </style>
     <script>
         // Function to update parameters
         function updateParams() {
             const formData = new FormData(document.getElementById("params-form"));
+            formData.set("min_circularity", formData.get("min_circularity") / 100); // Convert to range [0, 1]
+            formData.set("min_convexity", formData.get("min_convexity") / 100); // Convert to range [0, 1]
+            formData.set("min_inertia", formData.get("min_inertia") / 100); // Convert to range [0, 1]
             fetch('/set_params', { method: 'POST', body: formData });
         }
     </script>
 </head>
 <body>
-    <h1>ARCTIC ASV TRACKER</h1>
+    <h1>Real-time Blob Tracking with Masking and Controls</h1>
     <div>
         <img src="{{ url_for('video_feed') }}" width="1440" height="480">
     </div>
@@ -39,6 +44,9 @@
                 <label>V Max: <input type="range" name="v_max" min="0" max="255" value="255" class="slider"></label>
                 <label>Min Area: <input type="range" name="min_area" min="100" max="5000" value="400" class="slider"></label>
                 <label>Max Area: <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider"></label>
+                <label>Min Circularity: <input type="range" name="min_circularity" min="0" max="100" value="30" class="slider"></label>
+                <label>Min Convexity: <input type="range" name="min_convexity" min="0" max="100" value="50" class="slider"></label>
+                <label>Min Inertia Ratio: <input type="range" name="min_inertia" min="0" max="100" value="30" class="slider"></label>
             </div>
         </form>
     </div>

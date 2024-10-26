@@ -7,25 +7,14 @@ app = Flask(__name__)
 # Initialize the video capture with the USB camera
 camera = cv2.VideoCapture(1)  # Change to 0 for the default camera
 
-# Default values for HSV and blob parameters
+# Default values for HSV parameters specifically for green detection
 hsv_params = {
     "h_min": 35, "s_min": 100, "v_min": 100,
     "h_max": 85, "s_max": 255, "v_max": 255,
-    "min_area": 400, "max_area": 20000
+    "min_area": 400  # Minimum area threshold for detecting a blob
 }
 
-# Set up the SimpleBlobDetector parameters
-def setup_blob_detector(min_area, max_area):
-    params = cv2.SimpleBlobDetector_Params()
-    params.minThreshold = 0
-    params.maxThreshold = 100
-    params.filterByArea = True
-    params.minArea = min_area
-    params.maxArea = max_area
-    detector = cv2.SimpleBlobDetector_create(params)
-    return detector
-
-# Generate frames with real-time tuning
+# Generate frames with contour-based blob detection in the binary mask
 def generate_frames():
     while True:
         # Capture frame
@@ -34,41 +23,44 @@ def generate_frames():
             break
 
         # Get HSV and blob size parameters
-        h_min = hsv_params["h_min"]
-        s_min = hsv_params["s_min"]
-        v_min = hsv_params["v_min"]
-        h_max = hsv_params["h_max"]
-        s_max = hsv_params["s_max"]
-        v_max = hsv_params["v_max"]
+        h_min, s_min, v_min = hsv_params["h_min"], hsv_params["s_min"], hsv_params["v_min"]
+        h_max, s_max, v_max = hsv_params["h_max"], hsv_params["s_max"], hsv_params["v_max"]
         min_area = hsv_params["min_area"]
-        max_area = hsv_params["max_area"]
 
-        # Convert to HSV and apply mask
+        # Convert to HSV and apply mask for green color
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_frame, (h_min, s_min, v_min), (h_max, s_max, v_max))
         mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
-        # Setup blob detector with current min and max area
-        detector = setup_blob_detector(min_area, max_area)
-        keypoints = detector.detect(mask)
+        # Find contours in the mask
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Draw blobs and overlay blob info
-        frame_with_blobs = cv2.drawKeypoints(frame, keypoints, np.array([]), (0, 0, 255),
-                                             cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        blob_count = len(keypoints)
+        # Filter and draw detected blobs
+        blob_count = 0
+        first_blob_position = None
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area > min_area:  # Only consider contours with area above the threshold
+                blob_count += 1
+                # Get the center and radius of the contour for drawing
+                (x, y), radius = cv2.minEnclosingCircle(contour)
+                
+                # Save the position of the first blob for display
+                if blob_count == 1:
+                    first_blob_position = (int(x), int(y))
+                
+                cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)  # Draw yellow circle
+                # Draw center point of the blob
+                cv2.circle(frame, (int(x), int(y)), 3, (0, 255, 0), -1)  # Green dot at center
 
-        # Display blob count and first blob coordinates
-        if blob_count > 0:
-            blob_x, blob_y = int(keypoints[0].pt[0]), int(keypoints[0].pt[1])
-            overlay_text = f"Blob Count: {blob_count}, X: {blob_x}, Y: {blob_y}"
-        else:
-            overlay_text = "Blob Count: 0"
-
-        # Overlay text at the top right corner
-        cv2.putText(frame_with_blobs, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+        # Display blob count and the X, Y position of the first blob if detected
+        overlay_text = f"Blob Count: {blob_count}"
+        if first_blob_position:
+            overlay_text += f", X: {first_blob_position[0]}, Y: {first_blob_position[1]}"
+        cv2.putText(frame, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
         # Combine the frame with blobs and the mask side by side
-        combined_frame = np.hstack((frame_with_blobs, mask_colored))
+        combined_frame = np.hstack((frame, mask_colored))
 
         # Encode to JPEG
         ret, buffer = cv2.imencode('.jpg', combined_frame)
@@ -98,7 +90,6 @@ def set_params():
     hsv_params["s_max"] = int(request.form.get("s_max", 255))
     hsv_params["v_max"] = int(request.form.get("v_max", 255))
     hsv_params["min_area"] = int(request.form.get("min_area", 400))
-    hsv_params["max_area"] = int(request.form.get("max_area", 20000))
     return ('', 204)  # Empty response
 
 if __name__ == '__main__':
