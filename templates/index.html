@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Blob Tracking with Masking and Controls</title>
+    <style>
+        .slider-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .slider {
+            width: 300px;
+        }
+    </style>
+    <script>
+        // Function to update parameters
+        function updateParams() {
+            const formData = new FormData(document.getElementById("params-form"));
+            fetch('/set_params', { method: 'POST', body: formData });
+        }
+    </script>
+</head>
+<body>
+    <h1>Real-time Blob Tracking with Masking and Controls</h1>
+    <div>
+        <img src="{{ url_for('video_feed') }}" width="1440" height="480">
+    </div>
+    
+    <div>
+        <form id="params-form" oninput="updateParams()">
+            <div class="slider-container">
+                <label>H Min: <input type="range" name="h_min" min="0" max="179" value="35" class="slider"></label>
+                <label>S Min: <input type="range" name="s_min" min="0" max="255" value="100" class="slider"></label>
+                <label>V Min: <input type="range" name="v_min" min="0" max="255" value="100" class="slider"></label>
+                <label>H Max: <input type="range" name="h_max" min="0" max="179" value="85" class="slider"></label>
+                <label>S Max: <input type="range" name="s_max" min="0" max="255" value="255" class="slider"></label>
+                <label>V Max: <input type="range" name="v_max" min="0" max="255" value="255" class="slider"></label>
+                <label>Min Area: <input type="range" name="min_area" min="100" max="5000" value="400" class="slider"></label>
+                <label>Max Area: <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider"></label>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
