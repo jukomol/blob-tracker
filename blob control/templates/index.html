@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASV TRACKER</title>
+    <style>
+        /* Apply a margin to the body to prevent content from touching the window edges */
+        body {
+            margin: 50px;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .slider-group, .button-group {
+            width: 300px;
+            text-align: center;
+        }
+        .slider-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .slider, button {
+            width: 100%;
+            padding: 8px;
+            font-size: 1em;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+    </style>
+    <script>
+        // Function to update parameters dynamically
+        function updateParams() {
+            const formData = new FormData(document.getElementById("params-form"));
+            formData.set("min_circularity", formData.get("min_circularity") / 100);
+            formData.set("min_convexity", formData.get("min_convexity") / 100);
+            formData.set("min_inertia", formData.get("min_inertia") / 100);
+
+            fetch('/set_params', { method: 'POST', body: formData });
+        }
+
+        // Function to trigger calibration
+        function calibrate(type) {
+            fetch(`/${type}_calibration`, { method: 'POST' })
+                .then(response => response.text())
+                .then(data => alert(data))  // Show result in an alert
+                .catch(error => console.error('Calibration Error:', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>ASV TRACKER</h1>
+    <div style="text-align: center;">
+        <img src="{{ url_for('video_feed') }}" width="960" height="480" alt="Video Feed">
+    </div>
+    
+    <h2>Adjust Blob Detection Parameters</h2>
+    <form id="params-form" oninput="updateParams()">
+        <div class="slider-container">
+            <!-- HSV Parameters -->
+            <div class="slider-group">
+                <label>Hue Min:</label>
+                <input type="range" name="h_min" min="0" max="179" value="35" class="slider">
+            </div>
+            <div class="slider-group">
+                <label>Saturation Min:</label>
+                <input type="range" name="s_min" min="0" max="255" value="100" class="slider">
+            </div>
+            <div class="slider-group">
+                <label>Value Min:</label>
+                <input type="range" name="v_min" min="0" max="255" value="100" class="slider">
+            </div>
+            <div class="slider-group">
+                <label>Hue Max:</label>
+                <input type="range" name="h_max" min="0" max="179" value="85" class="slider">
+            </div>
+            <div class="slider-group">
+                <label>Saturation Max:</label>
+                <input type="range" name="s_max" min="0" max="255" value="255" class="slider">
+            </div>
+            <div class="slider-group">
+                <label>Value Max:</label>
+                <input type="range" name="v_max" min="0" max="255" value="255" class="slider">
+            </div>
+            
+            <!-- Blob Detection Parameters -->
+            <div class="slider-group">
+                <label>Minimum Blob Area:</label>
+                <input type="range" name="min_area" min="100" max="5000" value="400" class="slider">
+            </div>
+            <div class="slider-group">
+                <label>Maximum Blob Area:</label>
+                <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider">
+            </div>
+        </div>
+    </form>
+
+    <h2>Calibration Controls</h2>
+    <div class="button-group">
+        <button onclick="calibrate('motor')">Motor Calibration</button>
+        <button onclick="calibrate('imu')">IMU Calibration</button>
+    </div>
+</body>
+</html>
