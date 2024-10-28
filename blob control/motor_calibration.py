@@ -1,43 +1,56 @@
 import time
 import json
-import pigpio  # Library for GPIO PWM control on the Raspberry Pi
+import RPi.GPIO as GPIO
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
 MOTOR_PIN_2 = 13
 
 # Define full and minimum throttle PWM values for calibration
-FULL_THROTTLE_PWM = 2000  # Adjust if needed (max PWM for full throttle)
-MIN_THROTTLE_PWM = 1000   # Adjust if needed (min PWM for zero throttle)
+FULL_THROTTLE_PWM = 2000  # This corresponds to full throttle
+MIN_THROTTLE_PWM = 1000   # This corresponds to minimum throttle
 
-# Initialize pigpio
-pi = pigpio.pi()
-if not pi.connected:
-    print("Failed to connect to pigpio daemon.")
-    exit()
+# Set up GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(MOTOR_PIN_1, GPIO.OUT)
+GPIO.setup(MOTOR_PIN_2, GPIO.OUT)
 
-def calibrate_motor(motor_pin):
+# Initialize PWM with 50Hz frequency (common for ESCs)
+pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # 50Hz frequency
+pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)  # 50Hz frequency
+
+# Start PWM with 0 duty cycle (motor off)
+pwm_motor_1.start(0)
+pwm_motor_2.start(0)
+
+def pwm_from_microseconds(microseconds):
+    """
+    Convert microsecond PWM values (1000-2000 µs) to RPi.GPIO duty cycle percentage.
+    """
+    return (microseconds / 20000) * 100  # Convert to duty cycle for 50Hz
+
+def calibrate_motor(motor_pwm, full_throttle, min_throttle):
     """
     Calibrate a single ESC connected to the given GPIO pin.
     """
-    print(f"Starting ESC calibration on GPIO {motor_pin}. Please ensure the motor is not connected to a propeller.")
+    print("Starting ESC calibration. Please ensure the motor is not connected to a propeller.")
 
     # Step 1: Set full throttle
-    pi.set_servo_pulsewidth(motor_pin, FULL_THROTTLE_PWM)
-    print(f"[GPIO {motor_pin}] Set full throttle PWM to {FULL_THROTTLE_PWM}. Waiting for ESC to enter calibration mode...")
+    motor_pwm.ChangeDutyCycle(pwm_from_microseconds(full_throttle))
+    print(f"Set full throttle PWM to {full_throttle} µs. Waiting for ESC to enter calibration mode...")
     time.sleep(2)  # Wait for ESC to recognize full throttle signal
 
     # Step 2: Set minimum throttle
-    pi.set_servo_pulsewidth(motor_pin, MIN_THROTTLE_PWM)
-    print(f"[GPIO {motor_pin}] Set minimum throttle PWM to {MIN_THROTTLE_PWM}. Finalizing calibration...")
+    motor_pwm.ChangeDutyCycle(pwm_from_microseconds(min_throttle))
+    print(f"Set minimum throttle PWM to {min_throttle} µs. Finalizing calibration...")
     time.sleep(2)  # Wait for ESC to recognize minimum throttle signal
 
     # Step 3: Turn off signal to exit calibration mode
-    pi.set_servo_pulsewidth(motor_pin, 0)
+    motor_pwm.ChangeDutyCycle(0)
     time.sleep(1)
 
-    print(f"[GPIO {motor_pin}] ESC calibration complete.")
-    return {"min_pwm": MIN_THROTTLE_PWM, "max_pwm": FULL_THROTTLE_PWM}
+    print("ESC calibration complete.")
+    return {"min_pwm": min_throttle, "max_pwm": full_throttle}
 
 def save_calibration(calibration_data):
     """
@@ -66,17 +79,17 @@ if __name__ == "__main__":
     if calibration_data is None:
         # Calibrate MOTOR_PIN_1
         calibration_data = {}
-        calibration_data["motor_1"] = calibrate_motor(MOTOR_PIN_1)
+        calibration_data["motor_1"] = calibrate_motor(pwm_motor_1, FULL_THROTTLE_PWM, MIN_THROTTLE_PWM)
 
         # Calibrate MOTOR_PIN_2
-        calibration_data["motor_2"] = calibrate_motor(MOTOR_PIN_2)
+        calibration_data["motor_2"] = calibrate_motor(pwm_motor_2, FULL_THROTTLE_PWM, MIN_THROTTLE_PWM)
 
         # Save calibration data
         save_calibration(calibration_data)
     else:
         print("ESCs are already calibrated. No need to recalibrate.")
     
-    # Stop PWM signal and cleanup
-    pi.set_servo_pulsewidth(MOTOR_PIN_1, 0)
-    pi.set_servo_pulsewidth(MOTOR_PIN_2, 0)
-    pi.stop()
+    # Stop PWM signals and cleanup
+    pwm_motor_1.stop()
+    pwm_motor_2.stop()
+    GPIO.cleanup()

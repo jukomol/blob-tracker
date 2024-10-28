@@ -2,11 +2,12 @@ from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
 import json
-import pigpio
+import time
+import RPi.GPIO as GPIO
 import config
 from blob_detection import capture_blob_error
 from pid_controller import PIDController
-from imu_integration import get_swing_correction, get_corrected_gyroscope
+from imu_integration import get_swing_correction
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
@@ -21,11 +22,16 @@ camera = cv2.VideoCapture(1)  # Change to 0 for the default camera
 # Initialize PID controller for x and y axes
 pid = PIDController(config.Kp, config.Ki, config.Kd, config.dt)
 
-# Initialize pigpio for motor control
-pi = pigpio.pi()
-if not pi.connected:
-    print("Failed to connect to pigpio daemon.")
-    exit()
+# Set up GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(MOTOR_PIN_1, GPIO.OUT)
+GPIO.setup(MOTOR_PIN_2, GPIO.OUT)
+
+# Initialize PWM for motors at 50Hz frequency
+pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # 50Hz frequency for ESC
+pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)  # 50Hz frequency for ESC
+pwm_motor_1.start(0)  # Start with motor off
+pwm_motor_2.start(0)  # Start with motor off
 
 # Load motor calibration data
 with open("motor_calibration.json", "r") as f:
@@ -33,13 +39,17 @@ with open("motor_calibration.json", "r") as f:
 motor_1_cal = calibration_data["motor_1"]
 motor_2_cal = calibration_data["motor_2"]
 
+# Function to convert microsecond PWM values to duty cycle for 50Hz PWM
+def pwm_from_microseconds(microseconds):
+    return (microseconds / 20000) * 100  # Converts to duty cycle for 50Hz
+
 # Motor control function
-def set_motor_speed(motor_pin, speed_pwm, motor_cal):
+def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
     """
     Set motor speed with PWM, constrained by calibrated min and max PWM values.
     """
-    pwm = max(motor_cal["min_pwm"], min(motor_cal["max_pwm"], speed_pwm))
-    pi.set_servo_pulsewidth(motor_pin, pwm)
+    pwm_value = max(motor_cal["min_pwm"], min(motor_cal["max_pwm"], speed_pwm))
+    motor_pwm.ChangeDutyCycle(pwm_from_microseconds(pwm_value))
 
 def generate_frames():
     """
@@ -65,8 +75,8 @@ def generate_frames():
             motor_speed_2 = 1500 - output_x + output_y
 
             # Set motor speeds, ensuring values are within the calibrated range
-            set_motor_speed(MOTOR_PIN_1, motor_speed_1, motor_1_cal)
-            set_motor_speed(MOTOR_PIN_2, motor_speed_2, motor_2_cal)
+            set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
+            set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
 
             # Display the error, motor speeds, and IMU corrections on the frame
             overlay_text = f"Error X: {error_x}, Error Y: {error_y}"
@@ -110,7 +120,8 @@ def set_params():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-    # Cleanup: stop motors and pigpio
-    pi.set_servo_pulsewidth(MOTOR_PIN_1, 0)
-    pi.set_servo_pulsewidth(MOTOR_PIN_2, 0)
-    pi.stop()
+    
+    # Stop PWM signals and cleanup GPIO
+    pwm_motor_1.stop()
+    pwm_motor_2.stop()
+    GPIO.cleanup()
