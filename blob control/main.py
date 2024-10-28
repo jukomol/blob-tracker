@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, jsonify
 import cv2
 import numpy as np
 import json
@@ -16,8 +16,21 @@ MOTOR_PIN_2 = 13
 # Initialize Flask app
 app = Flask(__name__)
 
-# Initialize the video capture with the USB camera
-camera = cv2.VideoCapture(1)  # Change to 0 for the default camera
+# Initialize camera variables
+camera_index = 0  # Default camera index
+camera = cv2.VideoCapture(camera_index)
+
+# Function to scan connected cameras
+def scan_cameras(max_index=10):
+    available_cameras = []
+    for index in range(max_index):
+        cap = cv2.VideoCapture(index)
+        if cap is not None and cap.isOpened():
+            ret, _ = cap.read()
+            if ret:
+                available_cameras.append(index)
+            cap.release()
+    return available_cameras
 
 # Initialize PID controller for x and y axes
 pid = PIDController(config.Kp, config.Ki, config.Kd, config.dt)
@@ -28,10 +41,10 @@ GPIO.setup(MOTOR_PIN_1, GPIO.OUT)
 GPIO.setup(MOTOR_PIN_2, GPIO.OUT)
 
 # Initialize PWM for motors at 50Hz frequency
-pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # 50Hz frequency for ESC
-pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)  # 50Hz frequency for ESC
-pwm_motor_1.start(0)  # Start with motor off
-pwm_motor_2.start(0)  # Start with motor off
+pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)
+pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)
+pwm_motor_1.start(0)
+pwm_motor_2.start(0)
 
 # Load motor calibration data
 with open("motor_calibration.json", "r") as f:
@@ -56,8 +69,8 @@ def generate_frames():
     Capture frames from the camera, perform blob detection, calculate errors,
     apply PID control, and send the frame with overlay in real-time.
     """
+    global camera
     while True:
-        # Capture frame and calculate blob error
         error_x, error_y, frame = capture_blob_error(camera)
         
         # If blob detected, calculate PID outputs
@@ -94,11 +107,23 @@ def generate_frames():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    available_cameras = scan_cameras()
+    return render_template('index.html', available_cameras=available_cameras)
 
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/set_camera', methods=['POST'])
+def set_camera():
+    """
+    Set the selected camera based on user input.
+    """
+    global camera, camera_index
+    camera_index = int(request.form.get("camera_index", 0))
+    camera.release()  # Release the current camera
+    camera = cv2.VideoCapture(camera_index)  # Set the new camera
+    return jsonify(success=True)
 
 @app.route('/set_params', methods=['POST'])
 def set_params():
@@ -116,12 +141,26 @@ def set_params():
         int(request.form.get("v_max", config.hsv_max[2]))
     )
     config.min_area = int(request.form.get("min_area", config.min_area))
+    config.max_area = int(request.form.get("max_area", config.max_area))
+    config.min_circularity = float(request.form.get("min_circularity", config.min_circularity)) / 100
+    config.min_convexity = float(request.form.get("min_convexity", config.min_convexity)) / 100
+    config.min_inertia = float(request.form.get("min_inertia", config.min_inertia)) / 100
     return ('', 204)  # Empty response to indicate success
 
+@app.route('/motor_calibration', methods=['POST'])
+def motor_calibration():
+    calibrate_motor(MOTOR_PIN_1, MOTOR_PIN_2, GPIO)
+    return "Motor calibration completed successfully!"
+
+@app.route('/imu_calibration', methods=['POST'])
+def imu_calibration():
+    calibrate_imu()
+    return "IMU calibration completed successfully!"
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-    
-    # Stop PWM signals and cleanup GPIO
-    pwm_motor_1.stop()
-    pwm_motor_2.stop()
-    GPIO.cleanup()
+    try:
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    finally:
+        pwm_motor_1.stop()
+        pwm_motor_2.stop()
+        GPIO.cleanup()

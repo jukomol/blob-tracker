@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time Blob Tracking with Calibration and Tuning</title>
+    <title>ASV TRACKING</title>
     <style>
         body {
-            margin: 10px;
+            margin: 50px;
         }
 
         .slider-container {
@@ -16,7 +16,7 @@
             justify-content: space-between;
             margin-top: 20px;
         }
-        .slider-group, .button-group {
+        .slider-group, .button-group, .camera-select {
             width: 300px;
             text-align: center;
         }
@@ -25,7 +25,7 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        .slider, button {
+        .slider, button, select {
             width: 100%;
             padding: 8px;
             font-size: 1em;
@@ -50,11 +50,33 @@
                 .then(data => alert(data))  // Show result in an alert
                 .catch(error => console.error('Calibration Error:', error));
         }
+
+        // Function to update the selected camera
+        function updateCamera() {
+            const cameraIndex = document.getElementById("camera-select").value;
+            fetch('/set_camera', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `camera_index=${cameraIndex}`
+            }).then(response => response.json()).then(data => {
+                if (data.success) alert("Camera switched successfully!");
+            }).catch(error => console.error('Error:', error));
+        }
     </script>
 </head>
 <body>
-    <h1>Real-time Blob Tracking with Calibration and Parameter Tuning</h1>
-    <div style="text-align: center;">
+    <h1>ASV TRACKING</h1>
+    
+    <div class="camera-select">
+        <label for="camera-select">Select Camera:</label>
+        <select id="camera-select" onchange="updateCamera()">
+            {% for cam in available_cameras %}
+                <option value="{{ cam }}" {% if cam == 0 %}selected{% endif %}>Camera {{ cam }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
         <img src="{{ url_for('video_feed') }}" width="960" height="480" alt="Video Feed">
     </div>
 
