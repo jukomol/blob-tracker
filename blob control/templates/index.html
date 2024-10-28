@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASV TRACKER</title>
+    <title>Real-time Blob Tracking with Calibration and Tuning</title>
     <style>
-        /* Apply a margin to the body to prevent content from touching the window edges */
         body {
-            margin: 50px;
+            margin: 10px;
         }
 
         .slider-container {
@@ -36,13 +35,11 @@
         }
     </style>
     <script>
-        // Function to update parameters dynamically
         function updateParams() {
             const formData = new FormData(document.getElementById("params-form"));
             formData.set("min_circularity", formData.get("min_circularity") / 100);
             formData.set("min_convexity", formData.get("min_convexity") / 100);
             formData.set("min_inertia", formData.get("min_inertia") / 100);
-
             fetch('/set_params', { method: 'POST', body: formData });
         }
 
@@ -56,49 +53,28 @@
     </script>
 </head>
 <body>
-    <h1>ASV TRACKER</h1>
+    <h1>Real-time Blob Tracking with Calibration and Parameter Tuning</h1>
     <div style="text-align: center;">
         <img src="{{ url_for('video_feed') }}" width="960" height="480" alt="Video Feed">
     </div>
-    
+
     <h2>Adjust Blob Detection Parameters</h2>
     <form id="params-form" oninput="updateParams()">
         <div class="slider-container">
-            <!-- HSV Parameters -->
-            <div class="slider-group">
-                <label>Hue Min:</label>
-                <input type="range" name="h_min" min="0" max="179" value="35" class="slider">
-            </div>
-            <div class="slider-group">
-                <label>Saturation Min:</label>
-                <input type="range" name="s_min" min="0" max="255" value="100" class="slider">
-            </div>
-            <div class="slider-group">
-                <label>Value Min:</label>
-                <input type="range" name="v_min" min="0" max="255" value="100" class="slider">
-            </div>
-            <div class="slider-group">
-                <label>Hue Max:</label>
-                <input type="range" name="h_max" min="0" max="179" value="85" class="slider">
-            </div>
-            <div class="slider-group">
-                <label>Saturation Max:</label>
-                <input type="range" name="s_max" min="0" max="255" value="255" class="slider">
-            </div>
-            <div class="slider-group">
-                <label>Value Max:</label>
-                <input type="range" name="v_max" min="0" max="255" value="255" class="slider">
-            </div>
+            <!-- HSV Thresholds -->
+            <div class="slider-group"><label>H Min: <input type="range" name="h_min" min="0" max="179" value="35" class="slider"></label></div>
+            <div class="slider-group"><label>S Min: <input type="range" name="s_min" min="0" max="255" value="100" class="slider"></label></div>
+            <div class="slider-group"><label>V Min: <input type="range" name="v_min" min="0" max="255" value="100" class="slider"></label></div>
+            <div class="slider-group"><label>H Max: <input type="range" name="h_max" min="0" max="179" value="85" class="slider"></label></div>
+            <div class="slider-group"><label>S Max: <input type="range" name="s_max" min="0" max="255" value="255" class="slider"></label></div>
+            <div class="slider-group"><label>V Max: <input type="range" name="v_max" min="0" max="255" value="255" class="slider"></label></div>
             
-            <!-- Blob Detection Parameters -->
-            <div class="slider-group">
-                <label>Minimum Blob Area:</label>
-                <input type="range" name="min_area" min="100" max="5000" value="400" class="slider">
-            </div>
-            <div class="slider-group">
-                <label>Maximum Blob Area:</label>
-                <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider">
-            </div>
+            <!-- Blob Detection Filters -->
+            <div class="slider-group"><label>Min Area: <input type="range" name="min_area" min="100" max="5000" value="400" class="slider"></label></div>
+            <div class="slider-group"><label>Max Area: <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider"></label></div>
+            <div class="slider-group"><label>Min Circularity: <input type="range" name="min_circularity" min="0" max="100" value="30" class="slider"></label></div>
+            <div class="slider-group"><label>Min Convexity: <input type="range" name="min_convexity" min="0" max="100" value="50" class="slider"></label></div>
+            <div class="slider-group"><label>Min Inertia Ratio: <input type="range" name="min_inertia" min="0" max="100" value="30" class="slider"></label></div>
         </div>
     </form>
 
