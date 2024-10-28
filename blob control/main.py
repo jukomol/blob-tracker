@@ -2,7 +2,6 @@ from flask import Flask, render_template, Response, request, jsonify
 import cv2
 import numpy as np
 import json
-import time
 import RPi.GPIO as GPIO
 import config
 from blob_detection import capture_blob_error
@@ -16,7 +15,7 @@ MOTOR_PIN_2 = 13
 # Initialize Flask app
 app = Flask(__name__)
 
-# Initialize camera variables
+# Initialize default camera index and open camera
 camera_index = 0  # Default camera index
 camera = cv2.VideoCapture(camera_index)
 
@@ -25,7 +24,7 @@ def scan_cameras(max_index=10):
     available_cameras = []
     for index in range(max_index):
         cap = cv2.VideoCapture(index)
-        if cap is not None and cap.isOpened():
+        if cap.isOpened():
             ret, _ = cap.read()
             if ret:
                 available_cameras.append(index)
@@ -105,25 +104,30 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
+# Flask route for main page with available cameras passed to HTML template
 @app.route('/')
 def index():
     available_cameras = scan_cameras()
     return render_template('index.html', available_cameras=available_cameras)
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+# Route to change the active camera based on user selection
 @app.route('/set_camera', methods=['POST'])
 def set_camera():
     """
     Set the selected camera based on user input.
     """
     global camera, camera_index
-    camera_index = int(request.form.get("camera_index", 0))
+    camera_index = int(request.form.get("camera_index", 0))  # Get camera index from form data
     camera.release()  # Release the current camera
-    camera = cv2.VideoCapture(camera_index)  # Set the new camera
+    camera = cv2.VideoCapture(camera_index)  # Set and initialize the new camera
     return jsonify(success=True)
+
+@app.route('/video_feed')
+def video_feed():
+    """
+    Video streaming route.
+    """
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/set_params', methods=['POST'])
 def set_params():
@@ -149,11 +153,17 @@ def set_params():
 
 @app.route('/motor_calibration', methods=['POST'])
 def motor_calibration():
+    """
+    Calibrate the motor by setting up PWM signals.
+    """
     calibrate_motor(MOTOR_PIN_1, MOTOR_PIN_2, GPIO)
     return "Motor calibration completed successfully!"
 
 @app.route('/imu_calibration', methods=['POST'])
 def imu_calibration():
+    """
+    Calibrate the IMU for swing correction.
+    """
     calibrate_imu()
     return "IMU calibration completed successfully!"
 

@@ -3,43 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASV TRACKING</title>
+    <title>Real-time Blob Tracking with Calibration, Tuning, and Camera Selection</title>
     <style>
         body {
-            margin: 50px;
+            margin: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .slider-container, .button-group, .camera-select {
+            margin-top: 20px;
+            text-align: center;
         }
 
         .slider-container {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
-            justify-content: space-between;
-            margin-top: 20px;
+            justify-content: center;
         }
-        .slider-group, .button-group, .camera-select {
+
+        .slider-group {
             width: 300px;
             text-align: center;
         }
+
         .slider-group label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
         }
+
         .slider, button, select {
             width: 100%;
             padding: 8px;
             font-size: 1em;
         }
+
         h1, h2 {
             text-align: center;
         }
     </style>
+
     <script>
+        // Function to update blob detection parameters
         function updateParams() {
             const formData = new FormData(document.getElementById("params-form"));
             formData.set("min_circularity", formData.get("min_circularity") / 100);
             formData.set("min_convexity", formData.get("min_convexity") / 100);
             formData.set("min_inertia", formData.get("min_inertia") / 100);
+
             fetch('/set_params', { method: 'POST', body: formData });
         }
 
@@ -58,52 +74,84 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `camera_index=${cameraIndex}`
-            }).then(response => response.json()).then(data => {
+            })
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) alert("Camera switched successfully!");
-            }).catch(error => console.error('Error:', error));
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </head>
+
 <body>
-    <h1>ASV TRACKING</h1>
-    
-    <div class="camera-select">
-        <label for="camera-select">Select Camera:</label>
-        <select id="camera-select" onchange="updateCamera()">
-            {% for cam in available_cameras %}
-                <option value="{{ cam }}" {% if cam == 0 %}selected{% endif %}>Camera {{ cam }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    <div style="text-align: center; margin-top: 20px;">
-        <img src="{{ url_for('video_feed') }}" width="960" height="480" alt="Video Feed">
-    </div>
-
-    <h2>Adjust Blob Detection Parameters</h2>
-    <form id="params-form" oninput="updateParams()">
-        <div class="slider-container">
-            <!-- HSV Thresholds -->
-            <div class="slider-group"><label>H Min: <input type="range" name="h_min" min="0" max="179" value="35" class="slider"></label></div>
-            <div class="slider-group"><label>S Min: <input type="range" name="s_min" min="0" max="255" value="100" class="slider"></label></div>
-            <div class="slider-group"><label>V Min: <input type="range" name="v_min" min="0" max="255" value="100" class="slider"></label></div>
-            <div class="slider-group"><label>H Max: <input type="range" name="h_max" min="0" max="179" value="85" class="slider"></label></div>
-            <div class="slider-group"><label>S Max: <input type="range" name="s_max" min="0" max="255" value="255" class="slider"></label></div>
-            <div class="slider-group"><label>V Max: <input type="range" name="v_max" min="0" max="255" value="255" class="slider"></label></div>
-            
-            <!-- Blob Detection Filters -->
-            <div class="slider-group"><label>Min Area: <input type="range" name="min_area" min="100" max="5000" value="400" class="slider"></label></div>
-            <div class="slider-group"><label>Max Area: <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider"></label></div>
-            <div class="slider-group"><label>Min Circularity: <input type="range" name="min_circularity" min="0" max="100" value="30" class="slider"></label></div>
-            <div class="slider-group"><label>Min Convexity: <input type="range" name="min_convexity" min="0" max="100" value="50" class="slider"></label></div>
-            <div class="slider-group"><label>Min Inertia Ratio: <input type="range" name="min_inertia" min="0" max="100" value="30" class="slider"></label></div>
+    <div class="container">
+        <h1>Real-time Blob Tracking with Calibration, Tuning, and Camera Selection</h1>
+        
+        <!-- Camera Selection -->
+        <div class="camera-select">
+            <label for="camera-select">Select Camera:</label>
+            <select id="camera-select" onchange="updateCamera()">
+                {% for cam in available_cameras %}
+                    <option value="{{ cam }}" {% if cam == 0 %}selected{% endif %}>Camera {{ cam }}</option>
+                {% endfor %}
+            </select>
         </div>
-    </form>
 
-    <h2>Calibration Controls</h2>
-    <div class="button-group">
-        <button onclick="calibrate('motor')">Motor Calibration</button>
-        <button onclick="calibrate('imu')">IMU Calibration</button>
+        <!-- Video Feed -->
+        <div style="text-align: center; margin-top: 20px;">
+            <img src="{{ url_for('video_feed') }}" width="960" height="480" alt="Video Feed">
+        </div>
+
+        <!-- Blob Detection Parameter Adjustment -->
+        <h2>Adjust Blob Detection Parameters</h2>
+        <form id="params-form" oninput="updateParams()">
+            <div class="slider-container">
+                <!-- HSV Thresholds -->
+                <div class="slider-group">
+                    <label>H Min: <input type="range" name="h_min" min="0" max="179" value="35" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>S Min: <input type="range" name="s_min" min="0" max="255" value="100" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>V Min: <input type="range" name="v_min" min="0" max="255" value="100" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>H Max: <input type="range" name="h_max" min="0" max="179" value="85" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>S Max: <input type="range" name="s_max" min="0" max="255" value="255" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>V Max: <input type="range" name="v_max" min="0" max="255" value="255" class="slider"></label>
+                </div>
+
+                <!-- Blob Detection Filters -->
+                <div class="slider-group">
+                    <label>Min Area: <input type="range" name="min_area" min="100" max="5000" value="400" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>Max Area: <input type="range" name="max_area" min="500" max="50000" value="20000" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>Min Circularity: <input type="range" name="min_circularity" min="0" max="100" value="30" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>Min Convexity: <input type="range" name="min_convexity" min="0" max="100" value="50" class="slider"></label>
+                </div>
+                <div class="slider-group">
+                    <label>Min Inertia Ratio: <input type="range" name="min_inertia" min="0" max="100" value="30" class="slider"></label>
+                </div>
+            </div>
+        </form>
+
+        <!-- Calibration Controls -->
+        <h2>Calibration Controls</h2>
+        <div class="button-group">
+            <button onclick="calibrate('motor')">Motor Calibration</button>
+            <button onclick="calibrate('imu')">IMU Calibration</button>
+        </div>
     </div>
 </body>
 </html>
