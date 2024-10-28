@@ -4,17 +4,6 @@ import cv2
 import numpy as np
 import config
 
-# Default HSV and area parameters
-hsv_params = {
-    "h_min": config.hsv_min[0],
-    "s_min": config.hsv_min[1],
-    "v_min": config.hsv_min[2],
-    "h_max": config.hsv_max[0],
-    "s_max": config.hsv_max[1],
-    "v_max": config.hsv_max[2],
-    "min_area": 400  # Minimum area threshold for detecting a blob
-}
-
 def get_mask(frame):
     """
     Apply HSV masking to detect specific colors.
@@ -22,8 +11,8 @@ def get_mask(frame):
     hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(
         hsv_frame,
-        (hsv_params["h_min"], hsv_params["s_min"], hsv_params["v_min"]),
-        (hsv_params["h_max"], hsv_params["s_max"], hsv_params["v_max"])
+        (config.h_min, config.s_min, config.v_min),
+        (config.h_max, config.s_max, config.v_max)
     )
     return mask
 
@@ -39,14 +28,30 @@ def detect_blobs(frame):
 
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area > hsv_params["min_area"]:
-            blob_count += 1
-            (x, y), radius = cv2.minEnclosingCircle(contour)
-            if blob_count == 1:
-                first_blob_position = (int(x), int(y))
-            # Draw the blob circle and center point
-            cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
-            cv2.circle(frame, (int(x), int(y)), 3, (0, 255, 0), -1)
+        
+        # Check area constraints
+        if config.min_area < area < config.max_area:
+            # Calculate shape features
+            perimeter = cv2.arcLength(contour, True)
+            circularity = 4 * np.pi * (area / (perimeter ** 2)) if perimeter > 0 else 0
+            hull = cv2.convexHull(contour)
+            hull_area = cv2.contourArea(hull)
+            convexity = area / hull_area if hull_area > 0 else 0
+            moments = cv2.moments(contour)
+            inertia = (moments["mu02"] / moments["mu20"]) if moments["mu20"] > 0 else 0
+
+            # Check shape constraints
+            if (circularity > config.min_circularity and
+                convexity > config.min_convexity and
+                inertia > config.min_inertia):
+
+                blob_count += 1
+                (x, y), radius = cv2.minEnclosingCircle(contour)
+                if blob_count == 1:
+                    first_blob_position = (int(x), int(y))
+                # Draw the blob circle and center point
+                cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                cv2.circle(frame, (int(x), int(y)), 3, (0, 255, 0), -1)
 
     return frame, blob_count, first_blob_position, mask
 
