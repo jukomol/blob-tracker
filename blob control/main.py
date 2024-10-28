@@ -2,7 +2,6 @@ from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
 import json
-import time
 import RPi.GPIO as GPIO
 import config
 from blob_detection import capture_blob_error, get_mask
@@ -29,7 +28,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(MOTOR_PIN_1, GPIO.OUT)
 GPIO.setup(MOTOR_PIN_2, GPIO.OUT)
 
-# Ensure previous PWM objects are stopped
+# Ensure previous PWM objects are stopped and initialize PWM
 try:
     pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # 50Hz frequency for ESC
     pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)  # 50Hz frequency for ESC
