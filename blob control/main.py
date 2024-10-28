@@ -5,7 +5,7 @@ import json
 import time
 import RPi.GPIO as GPIO
 import config
-from blob_detection import capture_blob_error
+from blob_detection import capture_blob_error, get_mask  # Ensure get_mask function is available
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
 
@@ -60,6 +60,10 @@ def generate_frames():
         # Capture frame and calculate blob error
         error_x, error_y, frame = capture_blob_error(camera)
         
+        # Generate the binary mask for HSV tuning
+        mask = get_mask(frame)
+        mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)  # Convert to BGR to display alongside the frame
+
         # If blob detected, calculate PID outputs
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
@@ -86,8 +90,11 @@ def generate_frames():
             cv2.putText(frame, motor_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv2.putText(frame, imu_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
+        # Combine the original frame with the mask for side-by-side view
+        combined_frame = np.hstack((frame, mask_colored))
+
         # Show frame with overlay
-        ret, buffer = cv2.imencode('.jpg', frame)
+        ret, buffer = cv2.imencode('.jpg', combined_frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
