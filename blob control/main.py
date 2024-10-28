@@ -66,10 +66,21 @@ def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
 def generate_frames():
     """
     Capture frames from the camera, perform blob detection, calculate errors,
-    apply PID control, and send the frame with overlay in real-time.
+    apply PID control, and send the frame with overlay and binary mask in real-time.
     """
     global camera
     while True:
+        # Capture a frame
+        ret, frame = camera.read()
+        if not ret:
+            break
+
+        # Convert to HSV and apply thresholds to create a binary mask
+        hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv_frame, (config.h_min, config.s_min, config.v_min),
+                                       (config.h_max, config.s_max, config.v_max))
+
+        # Perform blob detection and calculate error
         error_x, error_y, frame = capture_blob_error(camera)
         
         # If blob detected, calculate PID outputs
@@ -98,8 +109,14 @@ def generate_frames():
             cv2.putText(frame, motor_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv2.putText(frame, imu_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-        # Show frame with overlay
-        ret, buffer = cv2.imencode('.jpg', frame)
+        # Convert mask to a 3-channel image for display purposes
+        mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+
+        # Combine the original frame with the binary mask side by side
+        combined_frame = np.hstack((frame, mask_colored))
+
+        # Encode the combined frame to JPEG
+        ret, buffer = cv2.imencode('.jpg', combined_frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -134,21 +151,23 @@ def set_params():
     """
     Update HSV and blob size parameters from the UI sliders.
     """
-    config.hsv_min = (
-        int(request.form.get("h_min", config.hsv_min[0])),
-        int(request.form.get("s_min", config.hsv_min[1])),
-        int(request.form.get("v_min", config.hsv_min[2]))
-    )
-    config.hsv_max = (
-        int(request.form.get("h_max", config.hsv_max[0])),
-        int(request.form.get("s_max", config.hsv_max[1])),
-        int(request.form.get("v_max", config.hsv_max[2]))
-    )
+    # Update HSV thresholds
+    config.h_min = int(request.form.get("h_min", config.h_min))
+    config.s_min = int(request.form.get("s_min", config.s_min))
+    config.v_min = int(request.form.get("v_min", config.v_min))
+    config.h_max = int(request.form.get("h_max", config.h_max))
+    config.s_max = int(request.form.get("s_max", config.s_max))
+    config.v_max = int(request.form.get("v_max", config.v_max))
+    
+    # Update blob size constraints
     config.min_area = int(request.form.get("min_area", config.min_area))
     config.max_area = int(request.form.get("max_area", config.max_area))
-    config.min_circularity = float(request.form.get("min_circularity", config.min_circularity)) / 100
-    config.min_convexity = float(request.form.get("min_convexity", config.min_convexity)) / 100
-    config.min_inertia = float(request.form.get("min_inertia", config.min_inertia)) / 100
+    
+    # Update shape detection parameters
+    config.min_circularity = float(request.form.get("min_circularity", config.min_circularity))
+    config.min_convexity = float(request.form.get("min_convexity", config.min_convexity))
+    config.min_inertia = float(request.form.get("min_inertia", config.min_inertia))
+
     return ('', 204)  # Empty response to indicate success
 
 @app.route('/motor_calibration', methods=['POST'])
