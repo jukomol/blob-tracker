@@ -7,6 +7,7 @@ import config
 from blob_detection import capture_blob_error
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
+from logger import log_data  # Import the log_data function
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
@@ -66,24 +67,13 @@ def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
 def generate_frames():
     """
     Capture frames from the camera, perform blob detection, calculate errors,
-    apply PID control, and send the frame with overlay and binary mask in real-time.
+    apply PID control, log data, and send the frame with overlay and binary mask in real-time.
     """
     global camera
     while True:
-        # Capture a frame
-        ret, frame = camera.read()
-        if not ret:
-            break
-
-        # Convert to HSV and apply thresholds to create a binary mask
-        hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv_frame, (config.h_min, config.s_min, config.v_min),
-                                       (config.h_max, config.s_max, config.v_max))
-
-        # Perform blob detection and calculate error
+        # Capture a frame and calculate blob error
         error_x, error_y, frame = capture_blob_error(camera)
         
-        # If blob detected, calculate PID outputs
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
             output_x, output_y = pid.compute(error_x, error_y)
@@ -101,6 +91,23 @@ def generate_frames():
             set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
             set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
 
+            # Log data
+            blob_x, blob_y = config.target_x - error_x, config.target_y - error_y  # Current blob coordinates
+            log_data(
+                blob_x=blob_x,
+                blob_y=blob_y,
+                target_x=config.target_x,
+                target_y=config.target_y,
+                Kp=config.Kp,
+                Ki=config.Ki,
+                Kd=config.Kd,
+                dt=config.dt,
+                output_x=output_x,
+                output_y=output_y,
+                motor_speed_1=motor_speed_1,
+                motor_speed_2=motor_speed_2
+            )
+
             # Display the error, motor speeds, and IMU corrections on the frame
             overlay_text = f"Error X: {error_x}, Error Y: {error_y}"
             cv2.putText(frame, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
@@ -109,14 +116,8 @@ def generate_frames():
             cv2.putText(frame, motor_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv2.putText(frame, imu_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-        # Convert mask to a 3-channel image for display purposes
-        mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-
-        # Combine the original frame with the binary mask side by side
-        combined_frame = np.hstack((frame, mask_colored))
-
-        # Encode the combined frame to JPEG
-        ret, buffer = cv2.imencode('.jpg', combined_frame)
+        # Encode the frame to JPEG
+        ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')

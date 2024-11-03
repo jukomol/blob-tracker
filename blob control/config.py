@@ -1,7 +1,5 @@
 # config.py
 
-# config.py
-
 # HSV color space thresholds for blob detection
 h_min = 35   # Hue minimum
 s_min = 100  # Saturation minimum
@@ -30,3 +28,7 @@ initial_prev_error_x = 0
 initial_prev_error_y = 0
 initial_integral_x = 0
 initial_integral_y = 0
+
+#target position
+target_x= 320
+target_y = 240
