@@ -8,6 +8,7 @@ from blob_detection import capture_blob_error
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
 from logger import log_data  # Import the log_data function
+import math
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
@@ -86,8 +87,12 @@ def generate_frames():
             # Calculate PID outputs for x and y axes
             output_x, output_y = pid.compute(error_x, error_y)
             
-            # Apply swing correction based on IMU
+            # Applying swing correction based on IMU
             swing_correction_x, swing_correction_y, _ = get_swing_correction(swing_gain=0.1)
+            
+            swing_correction_x = math.cos(swing_correction_x)
+            swing_correction_y = math.sin(swing_correction_y)
+
             output_x += swing_correction_x
             output_y += swing_correction_y
 
