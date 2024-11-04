@@ -7,6 +7,7 @@ import config
 from blob_detection import capture_blob_error
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
+from logger import log_data  # Import the log_data function
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
@@ -63,10 +64,14 @@ def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
     pwm_value = max(motor_cal["min_pwm"], min(motor_cal["max_pwm"], speed_pwm))
     motor_pwm.ChangeDutyCycle(pwm_from_microseconds(pwm_value))
 
+    log_data(
+        speed_pwm=speed_pwm
+    )
+
 def generate_frames():
     """
     Capture frames from the camera, perform blob detection, calculate errors,
-    apply PID control, and send the frame with overlay and binary mask in real-time.
+    apply PID control, log data, and send the frame with overlay and binary mask in real-time.
     """
     global camera
     while True:
@@ -79,11 +84,8 @@ def generate_frames():
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_frame, (config.h_min, config.s_min, config.v_min),
                                        (config.h_max, config.s_max, config.v_max))
-
-        # Perform blob detection and calculate error
         error_x, error_y, frame = capture_blob_error(camera)
         
-        # If blob detected, calculate PID outputs
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
             output_x, output_y = pid.compute(error_x, error_y)
@@ -100,6 +102,23 @@ def generate_frames():
             # Set motor speeds, ensuring values are within the calibrated range
             set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
             set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
+
+            # Log data
+            blob_x, blob_y = config.target_x - error_x, config.target_y - error_y  # Current blob coordinates
+            log_data(
+                blob_x=blob_x,
+                blob_y=blob_y,
+                target_x=config.target_x,
+                target_y=config.target_y,
+                Kp=config.Kp,
+                Ki=config.Ki,
+                Kd=config.Kd,
+                dt=config.dt,
+                output_x=output_x,
+                output_y=output_y,
+                motor_speed_1=motor_speed_1,
+                motor_speed_2=motor_speed_2
+            )
 
             # Display the error, motor speeds, and IMU corrections on the frame
             overlay_text = f"Error X: {error_x}, Error Y: {error_y}"
