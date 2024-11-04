@@ -71,7 +71,15 @@ def generate_frames():
     """
     global camera
     while True:
-        # Capture a frame and calculate blob error
+        # Capture a frame
+        ret, frame = camera.read()
+        if not ret:
+            break
+
+        # Convert to HSV and apply thresholds to create a binary mask
+        hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv_frame, (config.h_min, config.s_min, config.v_min),
+                                       (config.h_max, config.s_max, config.v_max))
         error_x, error_y, frame = capture_blob_error(camera)
         
         if error_x is not None and error_y is not None:
@@ -116,8 +124,14 @@ def generate_frames():
             cv2.putText(frame, motor_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             cv2.putText(frame, imu_text, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
-        # Encode the frame to JPEG
-        ret, buffer = cv2.imencode('.jpg', frame)
+        # Convert mask to a 3-channel image for display purposes
+        mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+
+        # Combine the original frame with the binary mask side by side
+        combined_frame = np.hstack((frame, mask_colored))
+
+        # Encode the combined frame to JPEG
+        ret, buffer = cv2.imencode('.jpg', combined_frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
