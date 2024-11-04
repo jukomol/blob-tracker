@@ -17,7 +17,7 @@ MOTOR_PIN_2 = 13
 app = Flask(__name__)
 
 # Initialize default camera index and open camera
-camera_index = 1  # Default camera index
+camera_index = 0  # Default camera index
 camera = cv2.VideoCapture(camera_index)
 
 # Function to scan connected cameras
