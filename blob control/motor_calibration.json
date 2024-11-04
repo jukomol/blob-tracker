@@ -1,0 +1,10 @@
+{
+    "motor_1": {
+        "min_pwm": 1000,
+        "max_pwm": 2000
+    },
+    "motor_2": {
+        "min_pwm": 1000,
+        "max_pwm": 2000
+    }
+}
