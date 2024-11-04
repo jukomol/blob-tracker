@@ -64,10 +64,6 @@ def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
     pwm_value = max(motor_cal["min_pwm"], min(motor_cal["max_pwm"], speed_pwm))
     motor_pwm.ChangeDutyCycle(pwm_from_microseconds(pwm_value))
 
-    log_data(
-        speed_pwm=speed_pwm
-    )
-
 def generate_frames():
     """
     Capture frames from the camera, perform blob detection, calculate errors,
