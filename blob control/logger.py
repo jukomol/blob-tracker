@@ -15,7 +15,7 @@ fieldnames = [
     "target_x", "target_y",
     "Kp", "Ki", "Kd", "dt",
     "output_x", "output_y",
-    "motor_speed_1", "motor_speed_2", "speed_pwm"
+    "motor_speed_1", "motor_speed_2"
 ]
 
 # Initialize the log file and write headers
@@ -23,7 +23,7 @@ with open(log_file_path, mode="w", newline="") as file:
     writer = csv.DictWriter(file, fieldnames=fieldnames)
     writer.writeheader()
 
-def log_data(blob_x, blob_y, target_x, target_y, Kp, Ki, Kd, dt, output_x, output_y, motor_speed_1, motor_speed_2, speed_pwm):
+def log_data(blob_x, blob_y, target_x, target_y, Kp, Ki, Kd, dt, output_x, output_y, motor_speed_1, motor_speed_2):
     """
     Log the provided data to a CSV file with a unique timestamped filename.
     """
@@ -41,8 +41,7 @@ def log_data(blob_x, blob_y, target_x, target_y, Kp, Ki, Kd, dt, output_x, outpu
         "output_x": output_x,
         "output_y": output_y,
         "motor_speed_1": motor_speed_1,
-        "motor_speed_2": motor_speed_2,
-        "speed_pwm": speed_pwm
+        "motor_speed_2": motor_speed_2
     }
 
     # Append the data to the CSV file
