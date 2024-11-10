@@ -88,10 +88,12 @@ def generate_frames():
             output_x, output_y = pid.compute(error_x, error_y)
             
             # Applying swing correction based on IMU
-            swing_correction_x, swing_correction_y, _ = get_swing_correction(swing_gain=0.1)
-            
-            swing_correction_x = math.cos(swing_correction_x)
-            swing_correction_y = math.sin(swing_correction_y)
+            swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.1)
+
+            swing_correction_x = math.cos(swing_correction_x*(math.pi/180))
+            swing_correction_y = math.sin(swing_correction_y*(math.pi/180))
+            swing_correction_z = math.sin(swing_correction_z*(math.pi/180))
+
 
             output_x += swing_correction_x
             output_y += swing_correction_y
