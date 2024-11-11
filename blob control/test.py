@@ -53,9 +53,9 @@ def get_swing_correction(swing_gain=0.1):
     # Retrieve corrected gyroscope data
     corrected_gyro = get_corrected_gyroscope()
 
-    swing_correction_x = math.sin(corrected_gyro[0])
-    swing_correction_y = math.cos(corrected_gyro[1])
-    swing_correction_z = math.sin(corrected_gyro[2])
+    swing_correction_x = math.sin(corrected_gyro[0]*math.pi/180)
+    swing_correction_y = math.cos(corrected_gyro[1]*math.pi/180)
+    swing_correction_z = math.sin(corrected_gyro[2]*math.pi/180)
 
     # Apply gain to create a swing correction factor for each axis
     swing_correction_x = corrected_gyro[0] * swing_gain
