@@ -9,10 +9,13 @@ from pid_controller import PIDController
 from imu_integration import get_swing_correction
 from logger import log_data  # Import the log_data function
 import math
+import time
 
 
 swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0)
 
-print("Swing Correction X:", swing_correction_x)
-print("Swing Correction Y:", swing_correction_y)
-print("Swing Correction Z:", swing_correction_z)
+while True:
+    print("Swing Correction X:", swing_correction_x)
+    print("Swing Correction Y:", swing_correction_y)
+    print("Swing Correction Z:", swing_correction_z)
+    time.sleep(1)  # Delay for 1 second
