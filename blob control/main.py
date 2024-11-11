@@ -7,8 +7,7 @@ import config
 from blob_detection import capture_blob_error
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
-from logger import log_data  # Import the log_data function
-import math
+from logger import logger  # Import the singleton logger instance
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
@@ -90,7 +89,7 @@ def generate_frames():
             # Applying swing correction based on IMU
             swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.01)
 
-            output_x += swing_correction_y
+            output_x += swing_correction_x
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values
@@ -103,7 +102,7 @@ def generate_frames():
 
             # Log data
             blob_x, blob_y = config.target_x - error_x, config.target_y - error_y  # Current blob coordinates
-            log_data(
+            logger.log_data(
                 blob_x=blob_x,
                 blob_y=blob_y,
                 target_x=config.target_x,
