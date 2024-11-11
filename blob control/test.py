@@ -100,3 +100,4 @@ if __name__ == "__main__":
         #print("Roll:", roll)
         #print("Pitch:", pitch)
         print("Yaw:", yaw)
+        time.sleep(1)
