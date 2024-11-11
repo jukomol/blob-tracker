@@ -7,7 +7,8 @@ import config
 from blob_detection import capture_blob_error
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
-from logger import logger  # Import the singleton logger instance
+from logger import log_data  # Import the log_data function
+import math
 
 # GPIO pin configuration for ESC control
 MOTOR_PIN_1 = 12
@@ -40,9 +41,15 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(MOTOR_PIN_1, GPIO.OUT)
 GPIO.setup(MOTOR_PIN_2, GPIO.OUT)
 
-# Initialize PWM for motors at 50Hz frequency
-pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)
+# Initialize PWM for motors but don’t start them yet
+pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # Set 50Hz frequency
 pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)
+
+# Set initial duty cycle to 0 for both motors (or to a neutral/idle position if needed)
+pwm_motor_1.ChangeDutyCycle(0)
+pwm_motor_2.ChangeDutyCycle(0)
+
+# Start both motors simultaneously
 pwm_motor_1.start(0)
 pwm_motor_2.start(0)
 
@@ -102,7 +109,7 @@ def generate_frames():
 
             # Log data
             blob_x, blob_y = config.target_x - error_x, config.target_y - error_y  # Current blob coordinates
-            logger.log_data(
+            log_data(
                 blob_x=blob_x,
                 blob_y=blob_y,
                 target_x=config.target_x,
