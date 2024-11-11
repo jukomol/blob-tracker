@@ -18,7 +18,7 @@ MOTOR_PIN_2 = 13
 app = Flask(__name__)
 
 # Initialize default camera index and open camera
-camera_index = 0  # Default camera index
+camera_index = 1  # Default camera index
 camera = cv2.VideoCapture(camera_index)
 
 # Function to scan connected cameras
@@ -94,9 +94,9 @@ def generate_frames():
             output_x, output_y = pid.compute(error_x, error_y)
             
             # Applying swing correction based on IMU
-            swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.01)
+            swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.3)
 
-            #output_x += swing_correction_x
+            output_x += swing_correction_x
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values
