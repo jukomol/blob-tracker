@@ -64,14 +64,39 @@ def get_swing_correction(swing_gain=0.1):
 
     return swing_correction_x, swing_correction_y, swing_correction_z
 
+def gyro_to_roll_pitch_yaw(dt=0.01):
+    corrected_gyro = get_corrected_gyroscope()
+    gyro_x = corrected_gyro[0]
+    gyro_y = corrected_gyro[1]
+    gyro_z = corrected_gyro[2]
+    # Integrate gyro values to get roll, pitch, and yaw
+    roll = np.cumsum(gyro_x) * dt  # Integrate x-axis gyro
+    pitch = np.cumsum(gyro_y) * dt  # Integrate y-axis gyro
+    yaw = np.cumsum(gyro_z) * dt    # Integrate z-axis gyro
+
+    return roll, pitch, yaw
+
+def gyro_to_cartesian(r=1):
+    roll, pitch, yaw = gyro_to_roll_pitch_yaw(dt=0.01)
+    # Convert to Cartesian coordinates
+    x = r * np.cos(pitch) * np.cos(yaw)
+    y = r * np.cos(pitch) * np.sin(yaw)
+    z = r * np.sin(pitch)
+
+    return x, y, z
+
 if __name__ == "__main__":
     # Test the IMU integration functions
     print("Corrected Acceleration:", get_corrected_acceleration())
     print("Corrected Gyroscope:", get_corrected_gyroscope())
     print("Swing Correction:", get_swing_correction())
     while True:
-        swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=1)
-        print("Swing Correction X:", swing_correction_x)
-        print("Swing Correction Y:", swing_correction_y)
-        print("Swing Correction Z:", swing_correction_z)
-        time.sleep(1)
+        # swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=1)
+        # print("Swing Correction X:", swing_correction_x)
+        # print("Swing Correction Y:", swing_correction_y)
+        # print("Swing Correction Z:", swing_correction_z)
+        # time.sleep(1)
+        roll, pitch, yaw = gyro_to_roll_pitch_yaw(dt=0.01)
+        print("Roll:", roll)
+        print("Pitch:", pitch)
+        print("Yaw:", yaw)
