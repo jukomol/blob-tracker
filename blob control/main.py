@@ -88,9 +88,9 @@ def generate_frames():
             output_x, output_y = pid.compute(error_x, error_y)
             
             # Applying swing correction based on IMU
-            swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.1)
+            swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.01)
 
-            #output_x += swing_correction_x
+            output_x += swing_correction_y
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values
