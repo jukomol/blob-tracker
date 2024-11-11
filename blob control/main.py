@@ -100,8 +100,11 @@ def generate_frames():
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values
-            motor_speed_1 = 1500 + output_x - output_y
-            motor_speed_2 = 1500 - output_x + output_y
+            #motor_speed_1 = 1500 + output_x - output_y
+            #motor_speed_2 = 1500 - output_x + output_y
+
+            motor_speed_1 = 1500 + output_x
+            motor_speed_2 = 1500 + output_y
 
             # Set motor speeds, ensuring values are within the calibrated range
             set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
