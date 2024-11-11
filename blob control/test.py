@@ -97,6 +97,6 @@ if __name__ == "__main__":
         # print("Swing Correction Z:", swing_correction_z)
         # time.sleep(1)
         roll, pitch, yaw = gyro_to_roll_pitch_yaw(dt=0.01)
-        print("Roll:", roll)
-        print("Pitch:", pitch)
+        #print("Roll:", roll)
+        #print("Pitch:", pitch)
         print("Yaw:", yaw)
