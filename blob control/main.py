@@ -70,6 +70,7 @@ def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
     """
     pwm_value = max(motor_cal["min_pwm"], min(motor_cal["max_pwm"], speed_pwm))
     motor_pwm.ChangeDutyCycle(pwm_from_microseconds(pwm_value))
+    print(f"Setting motor speed to {pwm_value} µs")
 
 def generate_frames():
     """
@@ -96,7 +97,7 @@ def generate_frames():
             # Applying swing correction based on IMU
             swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.001)
 
-            output_x += swing_correction_x
+            output_x += swing_correction_z
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values

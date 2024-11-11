@@ -4,9 +4,13 @@ import csv
 import os
 from datetime import datetime
 
+# Ensure the logs directory exists
+log_dir = "logs"
+os.makedirs(log_dir, exist_ok=True)
+
 # Generate a unique log file name based on the current timestamp
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-log_file_path = f"log_data_{timestamp}.csv"
+log_file_path = os.path.join(log_dir, f"log_data_{timestamp}.csv")
 
 # Column headers for the log file
 fieldnames = [
