@@ -5,20 +5,20 @@ from math import sqrt
 
 class LSM6DS0:
     WHO_AM_I = 0x0F
-    CTRL1_XL = 0x20
-    CTRL2_G = 0x10
-    OUTX_L_XL = 0x28
-    OUTX_H_XL = 0x29
-    OUTY_L_XL = 0x2A
-    OUTY_H_XL = 0x2B
-    OUTZ_L_XL = 0x2C
-    OUTZ_H_XL = 0x2D
-    OUTX_L_G = 0x18
-    OUTX_H_G = 0x19
-    OUTY_L_G = 0x1A
-    OUTY_H_G = 0x1B
-    OUTZ_L_G = 0x1C
-    OUTZ_H_G = 0x1D
+    CTRL1_XL = 0x10
+    CTRL2_G = 0x11
+    OUTX_L_XL = 0x28  # Accelerometer X-axis low byte
+    OUTX_H_XL = 0x29  # Accelerometer X-axis high byte
+    OUTY_L_XL = 0x2A  # Accelerometer Y-axis low byte
+    OUTY_H_XL = 0x2B  # Accelerometer Y-axis high byte
+    OUTZ_L_XL = 0x2C  # Accelerometer Z-axis low byte
+    OUTZ_H_XL = 0x2D  # Accelerometer Z-axis high byte
+    OUTX_L_G = 0x22   # Gyroscope X-axis low byte
+    OUTX_H_G = 0x23   # Gyroscope X-axis high byte
+    OUTY_L_G = 0x24   # Gyroscope Y-axis low byte
+    OUTY_H_G = 0x25   # Gyroscope Y-axis high byte
+    OUTZ_L_G = 0x26   # Gyroscope Z-axis low byte
+    OUTZ_H_G = 0x27   # Gyroscope Z-axis high byte
 
     # Sensitivity (from datasheet)
     ACCEL_SENSITIVITY = {
@@ -35,7 +35,10 @@ class LSM6DS0:
         2000: 70.0
     }
 
-    def __init__(self, address=0x6A):
+    ACCEL_CONFIG = 0b01000000  # 104 Hz, 2g
+    GYRO_CONFIG = 0b01000000   # 104 Hz, 250 dps
+
+    def __init__(self, address=0x6B):
         self.address = address
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.accel_scale = 2  # ±2g by default
@@ -45,8 +48,8 @@ class LSM6DS0:
 
     def _initialize_sensor(self):
         # Configure accelerometer and gyroscope
-        self.write_register(self.CTRL1_XL, 0x60)  # 104 Hz, ±2g
-        self.write_register(self.CTRL2_G, 0x60)   # 104 Hz, ±245 dps
+        self.write_register(self.CTRL1_XL, self.ACCEL_CONFIG)  # 104 Hz, ±2g
+        self.write_register(self.CTRL2_G, self.GYRO_CONFIG)   # 104 Hz, ±250 dps
 
     def write_register(self, reg, value):
         self.i2c.writeto(self.address, bytes([reg, value]))
