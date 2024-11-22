@@ -19,6 +19,10 @@ def main():
         calibrator.save_calibration_data()
 
     # Continuously read calibrated data
+    readNormalizedGyro = sensor.readNormalizeGyro()
+    print("Z axis Normalized Edition",readNormalizedGyro[2])
+
+
     print("\nReading calibrated data from the sensor...\n")
     try:
         while True:
