@@ -23,8 +23,8 @@ def main():
     try:
         while True:
             accel_data, gyro_data = calibrator.get_calibrated_data()
-            print(f"Calibrated Accelerometer: {accel_data}")
-            print(f"Calibrated Gyroscope: {gyro_data}")
+            #print(f"Calibrated Accelerometer: {accel_data}")
+            print(f"Z axis: {gyro_data[2]}")
             time.sleep(0.5)
     except KeyboardInterrupt:
         print("\nExiting program.")
