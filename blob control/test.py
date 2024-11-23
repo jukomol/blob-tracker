@@ -87,11 +87,11 @@ def get_swing_correction(swing_gain=0.1):
 
 # Convert gyroscope readings to roll, pitch, and yaw (yaw normalized to [0, 360))
 def gyro_to_roll_pitch_yaw(dt=0.1):
-    # Retrieve corrected gyroscope data
-    gX, gY, gZ = normalizedGyro()
-    gyro_x = gX
-    gyro_y = gY
-    gyro_z = gZ
+    corrected_gyro = get_corrected_gyroscope()
+    gyro_x = corrected_gyro[0]
+    gyro_y = corrected_gyro[1]
+    gyro_z = corrected_gyro[2]
+
     # Integrate gyro values to calculate roll, pitch, and yaw
     roll = np.cumsum([gyro_x]) * dt  # Integrate x-axis gyro
     pitch = np.cumsum([gyro_y]) * dt  # Integrate y-axis gyro
