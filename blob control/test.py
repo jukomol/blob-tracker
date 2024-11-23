@@ -15,6 +15,8 @@ import os
 
 # Initialize IMU
 imu = lsm6ds33.LSM6DS33()  # Replace with the correct initialization if necessary
+rangePerDigitAccel = 0b01000000  # 104 Hz, 2g
+rangePerDigitGyro = 0b01000000   # 104 Hz, 250 dps
 
 # Load calibration data from file
 calibration_file = 'imu_calibration.json'
@@ -48,6 +50,20 @@ def get_corrected_gyroscope():
     )
     return corrected_gyro
 
+def normalizedAccel():
+    corrected_accel = get_corrected_acceleration()
+    aX = corrected_accel[0]*rangePerDigitAccel* 9.81
+    aY = corrected_accel[1]*rangePerDigitAccel* 9.81
+    aZ = corrected_accel[2]*rangePerDigitAccel* 9.81
+    return aX, aY, aZ
+
+def normalizedGyro():
+    corrected_gyro = get_corrected_gyroscope()
+    gX = corrected_gyro[0]*rangePerDigitGyro
+    gY = corrected_gyro[1]*rangePerDigitGyro
+    gZ = corrected_gyro[2]*rangePerDigitGyro
+    return gX, gY, gZ
+
 # Helper function to normalize an angle to the range [0, 360)
 def normalize_angle_360(angle):
     angle = angle % 360  # Wrap angle around 360 degrees
@@ -71,11 +87,11 @@ def get_swing_correction(swing_gain=0.1):
 
 # Convert gyroscope readings to roll, pitch, and yaw (yaw normalized to [0, 360))
 def gyro_to_roll_pitch_yaw(dt=0.1):
-    corrected_gyro = get_corrected_gyroscope()
-    gyro_x = corrected_gyro[0]
-    gyro_y = corrected_gyro[1]
-    gyro_z = corrected_gyro[2]
-
+    # Retrieve corrected gyroscope data
+    gX, gY, gZ = normalizedGyro()
+    gyro_x = gX
+    gyro_y = gY
+    gyro_z = gZ
     # Integrate gyro values to calculate roll, pitch, and yaw
     roll = np.cumsum([gyro_x]) * dt  # Integrate x-axis gyro
     pitch = np.cumsum([gyro_y]) * dt  # Integrate y-axis gyro
