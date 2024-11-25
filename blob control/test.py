@@ -88,6 +88,7 @@ def get_swing_correction(swing_gain=0.1):
 # Convert gyroscope readings to roll, pitch, and yaw (yaw normalized to [0, 360))
 def gyro_to_roll_pitch_yaw(dt=0.1):
     corrected_gyro = get_corrected_gyroscope()
+
     gyro_x = corrected_gyro[0]
     gyro_y = corrected_gyro[1]
     gyro_z = corrected_gyro[2]
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     # Test the IMU integration functions
     print("Corrected Acceleration:", get_corrected_acceleration())
     print("Corrected Gyroscope:", get_corrected_gyroscope())
-    print("Swing Correction:", get_swing_correction())
+    #print("Swing Correction:", get_swing_correction())
     while True:
         roll, pitch, yaw = gyro_to_roll_pitch_yaw(dt=0.1)
         #x, y, z = gyro_to_cartesian(r=1)

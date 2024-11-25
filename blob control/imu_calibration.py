@@ -6,7 +6,7 @@ import lsm6ds33  # Assuming this is the provided IMU library
 imu = lsm6ds33.LSM6DS33()  # Replace with correct initialization if necessary
 
 # Number of samples for calibration
-SAMPLE_COUNT = 100
+SAMPLE_COUNT = 1000
 DELAY = 0.05  # Delay in seconds between samples
 
 def calibrate_imu():
