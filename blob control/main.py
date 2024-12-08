@@ -93,10 +93,12 @@ def generate_frames():
         #angle, frame = angle_calculate(camera)
         target_x = 320
         target_y = 240
-        AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
-        BC = math.sqrt((pos_x - target_x)**2)
-        x = math.asin(BC/AB)*180/math.pi
-        print("AB:  ", AB, " BC: ", BC, " x: ", x)
+        print("pos_x: ", pos_x, " pos_y: ", pos_y)
+        print("target_x: ", target_x, " target_y: ", target_y)
+        #AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
+        #BC = math.sqrt((pos_x - target_x)**2)
+        #x = math.asin(BC/AB)*180/math.pi
+        #print("AB:  ", AB, " BC: ", BC, " x: ", x)
         
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
