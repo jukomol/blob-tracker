@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 import config
+import math
 
 def get_mask(frame):
     """
@@ -95,5 +96,30 @@ def blob_position(cap):
     
     # No blob detected, return None for errors
     return None, None, frame
+
+def angle_calculate(cap):
+    """
+    Calculate the angle between the x-axis and the line connecting the origin and the point (x, y).
+    """
+    ret, frame = cap.read()
+    if not ret:
+        return None, None  # Return if frame capture failed
+    
+    # Detect blobs
+    processed_frame, blob_count, first_blob_position, mask = detect_blobs(frame)
+    
+    if blob_count > 0 and first_blob_position:
+        blob_x, blob_y = first_blob_position
+        target_x = config.target_x
+        target_y = config.target_y
+        AB = math.sqrt((target_x - blob_x)**2 + (target_y - blob_y)**2)
+        BC = math.sqrt((blob_x - blob_y)**2 + (target_y - blob_y)**2)
+        x = math.arcsin(BC/AB)
+
+        return x, processed_frame
+    
+    # No blob detected, return None for errors
+    return None, frame
+
 
 
