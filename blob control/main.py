@@ -91,10 +91,10 @@ def generate_frames():
         error_x, error_y, frame = capture_blob_error(camera)
         pos_x, pos_y, frame = blob_position(camera)
         #angle, frame = angle_calculate(camera)
-        target_x = config.target_x
-        target_y = config.target_y
+        target_x = 320
+        target_y = 240
         AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
-        BC = math.sqrt((pos_x - pos_y)**2 + (target_y - pos_y)**2)
+        BC = math.sqrt((pos_x - target_x)**2)
         x = math.asin(BC/AB)*180/math.pi
         print("AB:  ", AB, " BC: ", BC, " x: ", x)
         
