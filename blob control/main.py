@@ -89,7 +89,7 @@ def generate_frames():
         mask = cv2.inRange(hsv_frame, (config.h_min, config.s_min, config.v_min),
                                        (config.h_max, config.s_max, config.v_max))
         error_x, error_y, frame = capture_blob_error(camera)
-        pos_x, pos_y = blob_position(camera)
+        pos_x, pos_y, frame = blob_position(camera)
         
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes

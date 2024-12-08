@@ -84,6 +84,6 @@ def blob_position(cap):
 
     blob_x, blob_y = first_blob_position
 
-    return blob_x, blob_y
+    return blob_x, blob_y, frame
 
 
