@@ -77,13 +77,23 @@ def capture_blob_error(cap):
     return None, None, frame
 
 def blob_position(cap):
+    """
+    Capture a frame, detect the blob, and calculate the error from the target center.
+    Returns error_x, error_y, and the processed frame with drawn blobs.
+    """
     ret, frame = cap.read()
     if not ret:
         return None, None, None  # Return if frame capture failed
+    
+    # Detect blobs
     processed_frame, blob_count, first_blob_position, mask = detect_blobs(frame)
+    
+    if blob_count > 0 and first_blob_position:
+        blob_x, blob_y = first_blob_position
 
-    blob_x, blob_y = first_blob_position
-
-    return blob_x, blob_y, frame
+        return blob_x, blob_y, processed_frame
+    
+    # No blob detected, return None for errors
+    return None, None, frame
 
 
