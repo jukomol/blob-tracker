@@ -97,6 +97,7 @@ def generate_frames():
         print("target_x: ", target_x, " target_y: ", target_y)
 
         while pos_x is None and pos_y is None:
+            pos_x, pos_y, frame = blob_position(camera)
             if pos_x is not None and pos_y is not None:
                 break
 
