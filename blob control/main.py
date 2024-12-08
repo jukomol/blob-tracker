@@ -4,7 +4,7 @@ import numpy as np
 import json
 import RPi.GPIO as GPIO
 import config
-from blob_detection import capture_blob_error
+from blob_detection import capture_blob_error, blob_position
 from pid_controller import PIDController
 from imu_integration import get_swing_correction
 from logger import log_data  # Import the log_data function
@@ -89,6 +89,7 @@ def generate_frames():
         mask = cv2.inRange(hsv_frame, (config.h_min, config.s_min, config.v_min),
                                        (config.h_max, config.s_max, config.v_max))
         error_x, error_y, frame = capture_blob_error(camera)
+        pos_x, pos_y = blob_position(camera)
         
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
@@ -129,7 +130,7 @@ def generate_frames():
             )
 
             # Display the error, motor speeds, and IMU corrections on the frame
-            overlay_text = f"Error X: {error_x}, Error Y: {error_y}"
+            overlay_text = f"X position: {pos_x}, Y position: {pos_y}"
             cv2.putText(frame, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             motor_text = f"Motor 1 PWM: {int(motor_speed_1)}, Motor 2 PWM: {int(motor_speed_2)}"
             imu_text = f"Swing Correction X: {swing_correction_x:.2f}, Y: {swing_correction_y:.2f}"
