@@ -90,7 +90,13 @@ def generate_frames():
                                        (config.h_max, config.s_max, config.v_max))
         error_x, error_y, frame = capture_blob_error(camera)
         pos_x, pos_y, frame = blob_position(camera)
-        angle, frame = angle_calculate(camera)
+        #angle, frame = angle_calculate(camera)
+        target_x = config.target_x
+        target_y = config.target_y
+        AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
+        BC = math.sqrt((pos_x - pos_y)**2 + (target_y - pos_y)**2)
+        x = math.asin(BC/AB)*180/math.pi
+        print("AB:  ", AB, " BC: ", BC, " x: ", x)
         
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
@@ -134,9 +140,9 @@ def generate_frames():
             overlay_text = f"X position: {pos_x}, Y position: {pos_y}"
             cv2.putText(frame, overlay_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
             motor_text = f"Motor 1 PWM: {int(motor_speed_1)}, Motor 2 PWM: {int(motor_speed_2)}"
-            angleShow = f"Blob Angle: {angle}"
+            #angleShow = f"Blob Angle: {angle}"
             cv2.putText(frame, motor_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
-            cv2.putText(frame, angleShow, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+            #cv2.putText(frame, angleShow, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
         # Convert mask to a 3-channel image for display purposes
         mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)

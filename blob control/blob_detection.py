@@ -114,7 +114,7 @@ def angle_calculate(cap):
         target_y = config.target_y
         AB = math.sqrt((target_x - blob_x)**2 + (target_y - blob_y)**2)
         BC = math.sqrt((blob_x - blob_y)**2 + (target_y - blob_y)**2)
-        x = math.arcsin(BC/AB)
+        x = math.asin(BC/AB)
 
         return x, processed_frame
     
