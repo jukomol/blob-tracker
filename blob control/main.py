@@ -97,13 +97,14 @@ def generate_frames():
         print("target_x: ", target_x, " target_y: ", target_y)
 
         while pos_x is None and pos_y is None:
-            if pos_x is None and pos_y is None:
+            if pos_x is not None and pos_y is not None:
                 break
+
          
         AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
         BC = math.sqrt((pos_x - target_x)**2)
         x = math.asin(BC/AB)*180/math.pi
-        print("AB:  ", AB, " BC: ", BC, " x: ", x)
+        #print("AB:  ", AB, " BC: ", BC, " x: ", x)
         
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
