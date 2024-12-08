@@ -72,6 +72,21 @@ def set_motor_speed(motor_pwm, speed_pwm, motor_cal):
     motor_pwm.ChangeDutyCycle(pwm_from_microseconds(pwm_value))
     print(f"Setting motor speed to {pwm_value} µs")
 
+def getQuadrant(pos_x, pos_y):
+    q1 = "quardrant 1"
+    q2 = "quardrant 2"
+    q3 = "quardrant 3"
+    q4 = "quardrant 4"
+
+    if pos_x >= 0 and pos_y >= 0 and pos_y <= 240 and pos_x <=320:
+        return q1
+    elif pos_x >=320 and pos_y <=0 and pos_x <=640 and pos_y <=240:
+        return q2
+    elif pos_x >=0 and pos_y >=240 and pos_y <= 480 and pos_x <=320:
+        return q3
+    elif pos_x >=320 and pos_y >=240 and pos_y <=480 and pos_x <=640:
+        return q4
+
 def generate_frames():
     """
     Capture frames from the camera, perform blob detection, calculate errors,
@@ -90,39 +105,79 @@ def generate_frames():
                                        (config.h_max, config.s_max, config.v_max))
         error_x, error_y, frame = capture_blob_error(camera)
         pos_x, pos_y, frame = blob_position(camera)
-        #angle, frame = angle_calculate(camera)
-        target_x = 320
-        target_y = 240
+        
+        
+        target_x = config.target_x
+        target_y = config.target_y  
         print("pos_x: ", pos_x, " pos_y: ", pos_y)
         print("target_x: ", target_x, " target_y: ", target_y)
 
-        while pos_x is None and pos_y is None:
+
+        if pos_x is None and pos_y is None:
             pos_x, pos_y, frame = blob_position(camera)
             if pos_x is not None and pos_y is not None:
                 break
 
+        getQuadrant = getQuadrant(pos_x, pos_y)
+        print("Quadrant: ", getQuadrant)
+
+        #--------------------------------------------------------------
+        # while pos_x is None and pos_y is None:
+        #     pos_x, pos_y, frame = blob_position(camera)
+        #     if pos_x is not None and pos_y is not None:
+        #         break
+        # --------------------------------------------------------------
          
         AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
         BC = math.sqrt((pos_x - target_x)**2)
         x = math.asin(BC/AB)*180/math.pi
         #print("AB:  ", AB, " BC: ", BC, " x: ", x)
-        
+
+
         if error_x is not None and error_y is not None:
             # Calculate PID outputs for x and y axes
             output_x, output_y = pid.compute(error_x, error_y)
+
+            thresholdAngle =  5
+
+            if (getQuadrant == "quardrant 1"):
+                while(x>thresholdAngle):
+                    motor_speed_2 = 1500 + 60
+                    if x<=5:
+                        motor_speed_1 = 1500+ 70
+                        break
+            elif (getQuadrant == "quardrant 2"):
+                while(x>thresholdAngle):
+                    motor_speed_2 = 1500 + 60
+                    if x<=5:
+                        motor_speed_1 = 1500+ 70
+                        break
+
+            elif (getQuadrant == "quardrant 3"):
+                while(x>thresholdAngle):
+                    motor_speed_1 = 1500 + 60
+                    if x<=5:
+                        motor_speed_2 = 1500+ 70
+                        break
+            if (getQuadrant == "quardrant 4"):
+                while(x>thresholdAngle):
+                    motor_speed_1 = 1500 + 60
+                    if x<=5:
+                        motor_speed_2 = 1500+ 70
+                        break
             
             # Applying swing correction based on IMU
-            swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.001)
+            #swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.001)
 
-            output_x += swing_correction_z
+            #output_x += swing_correction_z
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values
-            #motor_speed_1 = 1500 + output_x - output_y
-            #motor_speed_2 = 1500 - output_x + output_y
+            motor_speed_1 = 1500 + output_x - output_y
+            motor_speed_2 = 1500 - output_x + output_y
 
-            motor_speed_1 = 1500 + output_x
-            motor_speed_2 = 1500 + output_y
+            #motor_speed_1 = 1500 + output_x
+            #motor_speed_2 = 1500 + output_y
 
             # Set motor speeds, ensuring values are within the calibrated range
             set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
