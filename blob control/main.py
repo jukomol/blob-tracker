@@ -78,14 +78,15 @@ def getQuadrant(pos_x, pos_y):
     q3 = "quardrant 3"
     q4 = "quardrant 4"
 
-    if pos_x >= 0 and pos_y >= 0 and pos_y <= 240 and pos_x <=320:
-        return q1
-    elif pos_x >=320 and pos_y <=0 and pos_x <=640 and pos_y <=240:
-        return q2
-    elif pos_x >=0 and pos_y >=240 and pos_y <= 480 and pos_x <=320:
-        return q3
-    elif pos_x >=320 and pos_y >=240 and pos_y <=480 and pos_x <=640:
-        return q4
+    if pos_x is not None and pos_y is not None:
+        if pos_x >= 0 and pos_y >= 0 and pos_y <= 240 and pos_x <=320:
+            return q1
+        elif pos_x >=320 and pos_y <=0 and pos_x <=640 and pos_y <=240:
+            return q2
+        elif pos_x >=0 and pos_y >=240 and pos_y <= 480 and pos_x <=320:
+            return q3
+        elif pos_x >=320 and pos_y >=240 and pos_y <=480 and pos_x <=640:
+            return q4
 
 def generate_frames():
     """
@@ -118,8 +119,8 @@ def generate_frames():
             if pos_x is not None and pos_y is not None:
                 break
 
-        getQuadrant = getQuadrant(pos_x, pos_y)
-        print("Quadrant: ", getQuadrant)
+        getquadrant = getQuadrant(pos_x, pos_y)
+        print("Quadrant: ", getquadrant)
 
         #--------------------------------------------------------------
         # while pos_x is None and pos_y is None:
@@ -140,26 +141,26 @@ def generate_frames():
 
             thresholdAngle =  5
 
-            if (getQuadrant == "quardrant 1"):
+            if (getquadrant == "quardrant 1"):
                 while(x>thresholdAngle):
                     motor_speed_2 = 1500 + 60
                     if x<=5:
                         motor_speed_1 = 1500+ 70
                         break
-            elif (getQuadrant == "quardrant 2"):
+            elif (getquadrant == "quardrant 2"):
                 while(x>thresholdAngle):
                     motor_speed_2 = 1500 + 60
                     if x<=5:
                         motor_speed_1 = 1500+ 70
                         break
 
-            elif (getQuadrant == "quardrant 3"):
+            elif (getquadrant == "quardrant 3"):
                 while(x>thresholdAngle):
                     motor_speed_1 = 1500 + 60
                     if x<=5:
                         motor_speed_2 = 1500+ 70
                         break
-            if (getQuadrant == "quardrant 4"):
+            elif (getquadrant == "quardrant 4"):
                 while(x>thresholdAngle):
                     motor_speed_1 = 1500 + 60
                     if x<=5:
