@@ -110,16 +110,9 @@ def generate_frames():
         
         target_x = config.target_x
         target_y = config.target_y  
-        print("pos_x: ", pos_x, " pos_y: ", pos_y)
-        print("target_x: ", target_x, " target_y: ", target_y)
+        #print("pos_x: ", pos_x, " pos_y: ", pos_y)
+        #print("target_x: ", target_x, " target_y: ", target_y)
 
-
-        if pos_x is None and pos_y is None:
-            pos_x, pos_y, frame = blob_position(camera)
-            if pos_x is not None and pos_y is not None:
-                break
-
-        
 
         #--------------------------------------------------------------
         # while pos_x is None and pos_y is None:
@@ -136,7 +129,7 @@ def generate_frames():
             AB = math.sqrt((target_x - pos_x)**2 + (target_y - pos_y)**2)
             BC = math.sqrt((pos_x - target_x)**2)
             x = math.asin(BC/AB)*180/math.pi
-            #print("AB:  ", AB, " BC: ", BC, " x: ", x)
+            print("AB:  ", AB, " BC: ", BC, " x: ", x)
 
             thresholdAngle =  5
 
