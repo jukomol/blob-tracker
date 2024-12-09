@@ -46,8 +46,8 @@ pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # Set 50Hz frequency
 pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)
 
 # Set initial duty cycle to 0 for both motors (or to a neutral/idle position if needed)
-pwm_motor_1.ChangeDutyCycle(0)
-pwm_motor_2.ChangeDutyCycle(0)
+pwm_motor_1.ChangeDutyCycle(5)
+pwm_motor_2.ChangeDutyCycle(5)
 
 # Start both motors simultaneously
 pwm_motor_1.start(0)
