@@ -135,36 +135,36 @@ def generate_frames():
 
             if (getquadrant == "quardrant 1"):
                 if x>thresholdAngle:
-                    motor_speed_2 = 1500 + 60
+                    motor_speed_2 = 1100 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
-                        motor_speed_1 = 1500+ 70
+                        motor_speed_1 = 1100+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
 
                         break
             elif (getquadrant == "quardrant 2"):
                 if x>thresholdAngle:
-                    motor_speed_2 = 1500 + 60
+                    motor_speed_2 = 1100 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
-                        motor_speed_1 = 1500+ 70
+                        motor_speed_1 = 1100+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                         break
 
             elif (getquadrant == "quardrant 3"):
                 if x>thresholdAngle:
-                    motor_speed_1 = 1500 + 60
+                    motor_speed_1 = 1100 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = 1500+ 70
+                        motor_speed_2 = 1100+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             elif (getquadrant == "quardrant 4"):
                 if x>thresholdAngle:
-                    motor_speed_1 = 1500 + 60
+                    motor_speed_1 = 1100 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = 1500+ 70
+                        motor_speed_2 = 1100+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             
