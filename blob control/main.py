@@ -121,7 +121,7 @@ def generate_frames():
         #         break
         # --------------------------------------------------------------
 
-        if error_x is not None and error_y is not None:
+        if pos_x is not None and pos_y is not None:
             # Calculate PID outputs for x and y axes
             output_x, output_y = pid.compute(error_x, error_y)
             getquadrant = getQuadrant(pos_x, pos_y)
