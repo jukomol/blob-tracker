@@ -11,8 +11,8 @@ from logger import log_data  # Import the log_data function
 import math
 
 # GPIO pin configuration for ESC control
-MOTOR_PIN_1 = 12
-MOTOR_PIN_2 = 13
+MOTOR_PIN_1 = 13
+MOTOR_PIN_2 = 12
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -112,6 +112,8 @@ def generate_frames():
         
         target_x = config.target_x
         target_y = config.target_y  
+
+        pwm = 1200
         #print("pos_x: ", pos_x, " pos_y: ", pos_y)
         #print("target_x: ", target_x, " target_y: ", target_y)
 
@@ -134,39 +136,40 @@ def generate_frames():
             print("AB:  ", AB, " BC: ", BC, " x: ", x)
 
             thresholdAngle =  5
+            
 
             if (getquadrant == "quardrant 1"):
                 if x>thresholdAngle:
-                    motor_speed_2 = 1000 + 20
+                    motor_speed_2 = pwm + 20
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
-                        motor_speed_1 = 1000+ 30
+                        motor_speed_1 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
 
                         break
             elif (getquadrant == "quardrant 2"):
                 if x>thresholdAngle:
-                    motor_speed_2 = 1000 + 20
+                    motor_speed_2 = pwm + 20
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
-                        motor_speed_1 = 1000+ 30
+                        motor_speed_1 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                         break
 
             elif (getquadrant == "quardrant 3"):
                 if x>thresholdAngle:
-                    motor_speed_1 = 1000 + 20
+                    motor_speed_1 = pwm + 20
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = 1000+ 30
+                        motor_speed_2 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             elif (getquadrant == "quardrant 4"):
                 if x>thresholdAngle:
-                    motor_speed_1 = 1000 + 20
+                    motor_speed_1 = pwm + 20
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = 1000+ 30
+                        motor_speed_2 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             
@@ -177,8 +180,8 @@ def generate_frames():
             #output_y += swing_correction_y
 
             # Map PID outputs to motor PWM values
-            motor_speed_1 = 1100 + output_x - output_y
-            motor_speed_2 = 1100 - output_x + output_y
+            motor_speed_1 = pwm + output_x - output_y
+            motor_speed_2 = pwm - output_x + output_y
 
             #motor_speed_1 = 1500 + output_x
             #motor_speed_2 = 1500 + output_y
