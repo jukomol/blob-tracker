@@ -134,7 +134,7 @@ def generate_frames():
             thresholdAngle =  5
 
             if (getquadrant == "quardrant 1"):
-                while(x>thresholdAngle):
+                if x>thresholdAngle:
                     motor_speed_2 = 1500 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
@@ -143,7 +143,7 @@ def generate_frames():
 
                         break
             elif (getquadrant == "quardrant 2"):
-                while(x>thresholdAngle):
+                if x>thresholdAngle:
                     motor_speed_2 = 1500 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
@@ -152,7 +152,7 @@ def generate_frames():
                         break
 
             elif (getquadrant == "quardrant 3"):
-                while(x>thresholdAngle):
+                if x>thresholdAngle:
                     motor_speed_1 = 1500 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
@@ -160,7 +160,7 @@ def generate_frames():
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             elif (getquadrant == "quardrant 4"):
-                while(x>thresholdAngle):
+                if x>thresholdAngle:
                     motor_speed_1 = 1500 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
