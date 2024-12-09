@@ -46,12 +46,14 @@ pwm_motor_1 = GPIO.PWM(MOTOR_PIN_1, 50)  # Set 50Hz frequency
 pwm_motor_2 = GPIO.PWM(MOTOR_PIN_2, 50)
 
 # Set initial duty cycle to 0 for both motors (or to a neutral/idle position if needed)
-pwm_motor_1.ChangeDutyCycle(5)
 pwm_motor_2.ChangeDutyCycle(5)
+pwm_motor_1.ChangeDutyCycle(5)
+
 
 # Start both motors simultaneously
-pwm_motor_1.start(0)
-pwm_motor_2.start(0)
+#pwm_motor_2.start(0)
+#pwm_motor_1.start(0)
+
 
 # Load motor calibration data
 with open("motor_calibration.json", "r") as f:
@@ -135,36 +137,36 @@ def generate_frames():
 
             if (getquadrant == "quardrant 1"):
                 if x>thresholdAngle:
-                    motor_speed_2 = 1100 + 60
+                    motor_speed_2 = 1000 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
-                        motor_speed_1 = 1100+ 70
+                        motor_speed_1 = 1000+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
 
                         break
             elif (getquadrant == "quardrant 2"):
                 if x>thresholdAngle:
-                    motor_speed_2 = 1100 + 60
+                    motor_speed_2 = 1000 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                     if x<=5:
-                        motor_speed_1 = 1100+ 70
+                        motor_speed_1 = 1000+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                         break
 
             elif (getquadrant == "quardrant 3"):
                 if x>thresholdAngle:
-                    motor_speed_1 = 1100 + 60
+                    motor_speed_1 = 1000 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = 1100+ 70
+                        motor_speed_2 = 1000+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             elif (getquadrant == "quardrant 4"):
                 if x>thresholdAngle:
-                    motor_speed_1 = 1100 + 60
+                    motor_speed_1 = 1000 + 60
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = 1100+ 70
+                        motor_speed_2 = 1000+ 70
                         set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
                         break
             
