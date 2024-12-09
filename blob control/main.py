@@ -113,7 +113,7 @@ def generate_frames():
         target_x = config.target_x
         target_y = config.target_y  
 
-        pwm = 1200
+        pwm = 1400
         #print("pos_x: ", pos_x, " pos_y: ", pos_y)
         #print("target_x: ", target_x, " target_y: ", target_y)
 
@@ -141,7 +141,7 @@ def generate_frames():
             if (getquadrant == "quardrant 1"):
                 if x>thresholdAngle:
                     motor_speed_2 = pwm + 20
-                    set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
+                    set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                     if x<=5:
                         motor_speed_1 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
@@ -150,7 +150,7 @@ def generate_frames():
             elif (getquadrant == "quardrant 2"):
                 if x>thresholdAngle:
                     motor_speed_2 = pwm + 20
-                    set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
+                    set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                     if x<=5:
                         motor_speed_1 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
@@ -162,7 +162,7 @@ def generate_frames():
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
                         motor_speed_2 = pwm + 30
-                        set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
+                        set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
             elif (getquadrant == "quardrant 4"):
                 if x>thresholdAngle:
@@ -170,7 +170,7 @@ def generate_frames():
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
                         motor_speed_2 = pwm + 30
-                        set_motor_speed(pwm_motor_1, motor_speed_2, motor_1_cal)
+                        set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
             
             # Applying swing correction based on IMU
