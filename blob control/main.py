@@ -135,7 +135,7 @@ def generate_frames():
             x = math.asin(BC/AB)*180/math.pi
             print("AB:  ", AB, " BC: ", BC, " x: ", x)
 
-            thresholdAngle =  5
+            thresholdAngle =  10
             
 
             if (getquadrant == "quardrant 1"):
@@ -173,9 +173,9 @@ def generate_frames():
                         set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
 
-            if pos_x is None and pos_y is None and error_x is None and error_y is None:
-                set_motor_speed(pwm_motor_2, 0, motor_2_cal)
-                set_motor_speed(pwm_motor_2, 0, motor_2_cal)
+            elif pos_x is None and pos_y is None:
+                set_motor_speed(pwm_motor_2, 1000, motor_2_cal)
+                set_motor_speed(pwm_motor_2, 1000, motor_2_cal)
 
             # Applying swing correction based on IMU
             #swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.001)
