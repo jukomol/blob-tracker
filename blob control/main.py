@@ -113,7 +113,7 @@ def generate_frames():
         target_x = config.target_x
         target_y = config.target_y  
 
-        pwm = 1400
+        pwm = 1500
         #print("pos_x: ", pos_x, " pos_y: ", pos_y)
         #print("target_x: ", target_x, " target_y: ", target_y)
 
