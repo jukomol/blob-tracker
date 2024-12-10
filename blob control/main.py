@@ -111,9 +111,9 @@ def generate_frames():
         
         
         target_x = config.target_x
-        target_y = config.target_y  
+        target_y = config.target_y 
 
-        pwm = 1350
+        pwm = 1300
         #print("pos_x: ", pos_x, " pos_y: ", pos_y)
         #print("target_x: ", target_x, " target_y: ", target_y)
 
@@ -135,7 +135,7 @@ def generate_frames():
             x = math.asin(BC/AB)*180/math.pi
             print("AB:  ", AB, " BC: ", BC, " x: ", x)
 
-            thresholdAngle =  10
+            thresholdAngle =  5
             
 
             if (getquadrant == "quardrant 1"):
@@ -145,8 +145,11 @@ def generate_frames():
                     if x<=5:
                         motor_speed_1 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
-
                         break
+                if pos_x is None and pos_y is None and error_x is None and error_y is None:
+                    motor_speed_1 = 1000
+                    motor_speed_2 = 1000 
+
             elif (getquadrant == "quardrant 2"):
                 if x>thresholdAngle:
                     motor_speed_2 = pwm + 20
@@ -155,6 +158,9 @@ def generate_frames():
                         motor_speed_1 = pwm + 30
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                         break
+                    if pos_x is None and pos_y is None and error_x is None and error_y is None:
+                        motor_speed_1 = 1000
+                        motor_speed_2 = 1000 
 
             elif (getquadrant == "quardrant 3"):
                 if x>thresholdAngle:
@@ -164,6 +170,10 @@ def generate_frames():
                         motor_speed_2 = pwm + 30
                         set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
+                    if pos_x is None and pos_y is None and error_x is None and error_y is None:
+                        motor_speed_1 = 1000
+                        motor_speed_2 = 1000
+
             elif (getquadrant == "quardrant 4"):
                 if x>thresholdAngle:
                     motor_speed_1 = pwm + 20
@@ -172,13 +182,16 @@ def generate_frames():
                         motor_speed_2 = pwm + 30
                         set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
-
-            elif pos_x is None and pos_y is None:
-                set_motor_speed(pwm_motor_2, 1000, motor_2_cal)
-                set_motor_speed(pwm_motor_2, 1000, motor_2_cal)
+                    if pos_x is None and pos_y is None and error_x is None and error_y is None:
+                        motor_speed_1 = 1000
+                        motor_speed_2 = 1000
 
             # Applying swing correction based on IMU
             #swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.001)
+
+            if pos_x is None and pos_y is None and error_x is None and error_y is None:
+                motor_speed_1 = 1000
+                motor_speed_2 = 1000                
 
             #output_x += swing_correction_z
             #output_y += swing_correction_y
