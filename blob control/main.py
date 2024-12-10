@@ -113,7 +113,7 @@ def generate_frames():
         target_x = config.target_x
         target_y = config.target_y  
 
-        pwm = 1400
+        pwm = 1350
         #print("pos_x: ", pos_x, " pos_y: ", pos_y)
         #print("target_x: ", target_x, " target_y: ", target_y)
 
@@ -172,7 +172,11 @@ def generate_frames():
                         motor_speed_2 = pwm + 30
                         set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
-            
+
+            if pos_x is None and pos_y is None and error_x is None and error_y is None:
+                set_motor_speed(pwm_motor_2, 0, motor_2_cal)
+                set_motor_speed(pwm_motor_2, 0, motor_2_cal)
+
             # Applying swing correction based on IMU
             #swing_correction_x, swing_correction_y, swing_correction_z = get_swing_correction(swing_gain=0.001)
 
