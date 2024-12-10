@@ -143,7 +143,7 @@ def generate_frames():
                     motor_speed_2 = pwm + 20
                     set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                     if x<=5:
-                        motor_speed_1 = pwm + 30
+                        motor_speed_1 = pwm + 10
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
 
                         break
@@ -152,7 +152,7 @@ def generate_frames():
                     motor_speed_2 = pwm + 20
                     set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                     if x<=5:
-                        motor_speed_1 = pwm + 30
+                        motor_speed_1 = pwm + 10
                         set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                         break
 
@@ -161,7 +161,7 @@ def generate_frames():
                     motor_speed_1 = pwm + 20
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = pwm + 30
+                        motor_speed_2 = pwm + 10
                         set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
             elif (getquadrant == "quardrant 4"):
@@ -169,7 +169,7 @@ def generate_frames():
                     motor_speed_1 = pwm + 20
                     set_motor_speed(pwm_motor_1, motor_speed_1, motor_1_cal)
                     if x<=5:
-                        motor_speed_2 = pwm + 30
+                        motor_speed_2 = pwm + 10
                         set_motor_speed(pwm_motor_2, motor_speed_2, motor_2_cal)
                         break
             
