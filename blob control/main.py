@@ -83,11 +83,11 @@ def getQuadrant(pos_x, pos_y):
     if pos_x is not None and pos_y is not None:
         if pos_x >= 0 and pos_y >= 0 and pos_y <= 240 and pos_x <=320:
             return q1
-        elif pos_x >=320 and pos_y >=0 and pos_x <=640 and pos_y <=240:
+        elif pos_x >=0 and pos_y >=240 and pos_x <=320 and pos_y <=480:
             return q2
         elif pos_x >=320 and pos_y >=240 and pos_y <= 480 and pos_x <=640:
             return q3
-        elif pos_x >=0 and pos_y >=240 and pos_y <=320 and pos_x <=480:
+        elif pos_x >=320 and pos_y >=0 and pos_y <=240 and pos_x <=640:
             return q4
 
 def generate_frames():
