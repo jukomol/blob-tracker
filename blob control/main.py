@@ -51,8 +51,8 @@ pwm_motor_1.ChangeDutyCycle(5)
 
 
 # Start both motors simultaneously
-#pwm_motor_2.start(0)
-#pwm_motor_1.start(0)
+pwm_motor_2.start(0)
+pwm_motor_1.start(0)
 
 
 # Load motor calibration data
